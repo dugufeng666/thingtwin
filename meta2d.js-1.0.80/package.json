@@ -1,0 +1,23 @@
+{
+  "name": "meta2d",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "start": "",
+    "copyCorePJ":"shx cp ./packages/core/package.build.json ./dist/core/package.json",
+    "build": "pnpm -r build && npm run copyCorePJ"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/offscreencanvas": "^2019.7.3",
+    "shx": "0.3.4",
+    "typescript": "latest",
+    "vite": "^5.4.2"
+  }
+}

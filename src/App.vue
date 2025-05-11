@@ -6,10 +6,9 @@
           <div class="text-2xl font-bold text-primary">ThingTwin</div>
         </div>
         <div class="flex space-x-4">
-          <router-link to="/" class="text-gray-300 hover:text-primary">Home</router-link>
-          <router-link to="/editor" class="text-gray-300 hover:text-primary">3D Editor</router-link>
-          <router-link to="/dashboard" class="text-gray-300 hover:text-primary">Dashboard</router-link>
-          <router-link to="/devices" class="text-gray-300 hover:text-primary">Devices</router-link>
+          <router-link to="/" class="text-gray-300 hover:text-primary">首页</router-link>
+          <router-link to="/meta2d" class="text-gray-300 hover:text-primary">Meta2D编辑器</router-link>
+          <router-link to="/templates" class="text-gray-300 hover:text-primary">模板库</router-link>
         </div>
       </nav>
     </header>

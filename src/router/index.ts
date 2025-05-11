@@ -9,19 +9,14 @@ const router = createRouter({
       component: () => import('../views/HomeView.vue')
     },
     {
-      path: '/editor',
-      name: 'editor',
-      component: () => import('../views/EditorView.vue')
+      path: '/meta2d',
+      name: 'meta2d',
+      component: () => import('../views/Meta2dEditorView.vue')
     },
     {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: () => import('../views/DashboardView.vue')
-    },
-    {
-      path: '/devices',
-      name: 'devices',
-      component: () => import('../views/DevicesView.vue')
+      path: '/templates',
+      name: 'templates',
+      component: () => import('../views/TemplatesView.vue')
     }
   ]
 })

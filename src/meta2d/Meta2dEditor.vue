@@ -3,142 +3,145 @@
     <div class="header-title">
       <span class="highlight">污水处理系统</span>数字孪生平台
       <div class="subtitle">Wastewater Treatment Digital Twin Platform</div>
+      <div class="tech-line left"></div>
+      <div class="tech-line right"></div>
     </div>
     
     <div class="toolbar bg-gray-800 p-2 flex items-center space-x-2">
       <div class="left-tools flex space-x-2">
-        <button @click="onNew" class="btn bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded">
-          新建
+        <button @click="onNew" class="btn bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded text-sm">
+          <i class="fas fa-file"></i> 新建
         </button>
-        <button @click="onSave" class="btn bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded">
-          保存
+        <button @click="onSave" class="btn bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-sm">
+          <i class="fas fa-save"></i> 保存
         </button>
-        <button @click="onOpen" class="btn bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded">
-          打开
+        <button @click="onOpen" class="btn bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded text-sm">
+          <i class="fas fa-folder-open"></i> 打开
         </button>
       </div>
       <div class="divider border-l border-gray-600 h-6 mx-2"></div>
       <div class="draw-tools flex space-x-2">
-        <button @click="onPen" class="btn bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded" :class="{ 'bg-blue-600': activeTool === 'pen' }">
-          线条
+        <button @click="onPen" class="btn-icon" :class="{ 'active': activeTool === 'pen' }">
+          <i class="fas fa-pen"></i>
         </button>
-        <button @click="onRect" class="btn bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded" :class="{ 'bg-blue-600': activeTool === 'rect' }">
-          矩形
+        <button @click="onRect" class="btn-icon" :class="{ 'active': activeTool === 'rect' }">
+          <i class="fas fa-square"></i>
         </button>
-        <button @click="onCircle" class="btn bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded" :class="{ 'bg-blue-600': activeTool === 'circle' }">
-          圆形
+        <button @click="onCircle" class="btn-icon" :class="{ 'active': activeTool === 'circle' }">
+          <i class="fas fa-circle"></i>
         </button>
-        <button @click="onText" class="btn bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded" :class="{ 'bg-blue-600': activeTool === 'text' }">
-          文字
+        <button @click="onText" class="btn-icon" :class="{ 'active': activeTool === 'text' }">
+          <i class="fas fa-font"></i>
         </button>
       </div>
       <div class="divider border-l border-gray-600 h-6 mx-2"></div>
       <div class="view-tools flex space-x-2">
-        <button @click="zoomIn" class="btn bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded">
-          放大
+        <button @click="zoomIn" class="btn-icon">
+          <i class="fas fa-search-plus"></i>
         </button>
-        <button @click="zoomOut" class="btn bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded">
-          缩小
+        <button @click="zoomOut" class="btn-icon">
+          <i class="fas fa-search-minus"></i>
         </button>
-        <button @click="resetZoom" class="btn bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded">
-          重置
+        <button @click="resetZoom" class="btn-icon">
+          <i class="fas fa-redo"></i>
         </button>
+      </div>
+      <div class="flex-1"></div>
+      <div class="zoom-display px-3 py-1 bg-gray-700 rounded text-sm text-gray-300">
+        缩放: {{ Math.round(scale * 100) }}%
       </div>
     </div>
 
-    <div class="flex h-[calc(100vh-10rem)]">
-      <!-- 组件库 -->
-      <div class="component-panel w-60 bg-gray-800 overflow-y-auto p-4">
-        <h3 class="text-white text-lg font-medium mb-4">污水处理组件</h3>
-        
-        <!-- 搜索框 -->
-        <div class="mb-4">
-          <input 
-            type="text" 
-            v-model="componentSearchQuery" 
-            placeholder="搜索组件..." 
-            class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white"
-          />
+    <div class="flex h-[calc(100vh-6.5rem)]">
+      <!-- 组件侧边栏 - 更窄 -->
+      <div class="component-panel w-48 bg-gray-800 overflow-y-auto">
+        <!-- 组件库标签页 -->
+        <div class="tabs flex text-center text-xs">
+          <div class="tab flex-1 py-2 border-b-2" :class="{'border-blue-500 text-blue-400': activeTab === 'water', 'border-transparent': activeTab !== 'water'}" @click="activeTab = 'water'">污水处理</div>
+          <div class="tab flex-1 py-2 border-b-2" :class="{'border-blue-500 text-blue-400': activeTab === 'basic', 'border-transparent': activeTab !== 'basic'}" @click="activeTab = 'basic'">基础</div>
         </div>
         
-        <div class="grid grid-cols-2 gap-3">
-          <div 
-            v-for="(comp, index) in filteredWaterComponents" 
-            :key="index"
-            class="component cursor-pointer bg-gray-700 p-2 rounded flex flex-col items-center hover:bg-gray-600"
-            draggable="true"
-            @dragstart="onDragStart($event, comp)"
-            @click="onComponentClick(comp)"
-          >
-            <img v-if="comp.image" :src="comp.image" :alt="comp.name" class="w-12 h-12 mb-2" draggable="false" />
-            <div v-else class="w-12 h-12 mb-2 flex items-center justify-center component-preview" draggable="false">
-              <div v-if="comp.data.rect" class="preview-rect" :style="{
-                background: comp.data.rect.fill || 'rgba(0, 102, 204, 0.6)',
-                borderColor: comp.data.rect.stroke || '#0066cc',
-                borderWidth: (comp.data.rect.strokeWidth || 2) + 'px'
-              }"></div>
-              <div v-else-if="comp.data.ellipse" class="preview-circle" :style="{
-                background: comp.data.ellipse.fill || 'rgba(0, 102, 204, 0.6)',
-                borderColor: comp.data.ellipse.stroke || '#0066cc',
-                borderWidth: (comp.data.ellipse.strokeWidth || 2) + 'px'
-              }"></div>
+        <!-- 搜索框 -->
+        <div class="p-2">
+          <div class="search-container relative">
+            <input 
+              type="text" 
+              v-model="componentSearchQuery" 
+              placeholder="搜索组件..." 
+              class="w-full px-2 py-1 pl-7 bg-gray-700 rounded border border-gray-600 text-white text-xs"
+            />
+            <i class="fas fa-search absolute left-2 top-1.5 text-gray-400 text-xs"></i>
+          </div>
+        </div>
+        
+        <!-- 污水处理组件 -->
+        <div v-show="activeTab === 'water'" class="p-2">
+          <div class="components-grid">
+            <div 
+              v-for="(comp, index) in filteredWaterComponents" 
+              :key="index"
+              class="component cursor-pointer p-1 rounded flex flex-col items-center"
+              draggable="true"
+              @dragstart="onDragStart($event, comp)"
+              @click="onComponentClick(comp)"
+            >
+              <img v-if="comp.image" :src="comp.image" :alt="comp.name" class="w-10 h-10 mb-1" draggable="false" />
+              <div v-else class="w-10 h-10 mb-1 flex items-center justify-center component-preview" draggable="false">
+                <div v-if="comp.data.rect" class="preview-rect" :style="{
+                  background: comp.data.rect.fill || 'rgba(0, 102, 204, 0.6)',
+                  borderColor: comp.data.rect.stroke || '#0066cc',
+                  borderWidth: (comp.data.rect.strokeWidth || 2) + 'px'
+                }"></div>
+                <div v-else-if="comp.data.ellipse" class="preview-circle" :style="{
+                  background: comp.data.ellipse.fill || 'rgba(0, 102, 204, 0.6)',
+                  borderColor: comp.data.ellipse.stroke || '#0066cc',
+                  borderWidth: (comp.data.ellipse.strokeWidth || 2) + 'px'
+                }"></div>
+              </div>
+              <span class="text-xs text-white text-center truncate w-full">{{ comp.name }}</span>
             </div>
-            <span class="text-xs text-white text-center">{{ comp.name }}</span>
           </div>
         </div>
 
-        <h3 class="text-white text-lg font-medium mt-6 mb-4">基础组件</h3>
-        <div class="grid grid-cols-2 gap-3">
-          <div 
-            v-for="(comp, index) in basicComponents" 
-            :key="index"
-            class="component cursor-pointer bg-gray-700 p-2 rounded flex flex-col items-center hover:bg-gray-600"
-            draggable="true"
-            @dragstart="onDragStart($event, comp)"
-            @click="onComponentClick(comp)"
-          >
-            <div class="w-12 h-12 mb-2 flex items-center justify-center" :class="comp.iconClass" draggable="false">
-              <svg v-if="comp.type === 'rect'" class="w-8 h-8" viewBox="0 0 24 24">
-                <rect x="2" y="2" width="20" height="20" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
-              </svg>
-              
-              <svg v-else-if="comp.type === 'circle'" class="w-8 h-8" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
-              </svg>
-              
-              <svg v-else-if="comp.type === 'text'" class="w-8 h-8" viewBox="0 0 24 24">
-                <text x="12" y="16" text-anchor="middle" font-size="18" font-weight="bold" fill="currentColor">T</text>
-              </svg>
-              
-              <svg v-else-if="comp.type === 'line'" class="w-8 h-8" viewBox="0 0 24 24">
-                <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="3" />
-              </svg>
+        <!-- 基础组件 -->
+        <div v-show="activeTab === 'basic'" class="p-2">
+          <div class="components-grid">
+            <div 
+              v-for="(comp, index) in basicComponents" 
+              :key="index"
+              class="component cursor-pointer p-1 rounded flex flex-col items-center"
+              draggable="true"
+              @dragstart="onDragStart($event, comp)"
+              @click="onComponentClick(comp)"
+            >
+              <div class="w-10 h-10 mb-1 flex items-center justify-center" :class="comp.iconClass" draggable="false">
+                <svg v-if="comp.type === 'rect'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <rect x="2" y="2" width="20" height="20" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
+                </svg>
+                
+                <svg v-else-if="comp.type === 'circle'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
+                </svg>
+                
+                <svg v-else-if="comp.type === 'text'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <text x="12" y="16" text-anchor="middle" font-size="18" font-weight="bold" fill="currentColor">T</text>
+                </svg>
+                
+                <svg v-else-if="comp.type === 'line'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="3" />
+                </svg>
+              </div>
+              <span class="text-xs text-white text-center truncate w-full">{{ comp.name }}</span>
             </div>
-            <span class="text-xs text-white text-center">{{ comp.name }}</span>
           </div>
-        </div>
-        
-        <!-- 测试按钮区域 -->
-        <div class="mt-6 border-t border-gray-700 pt-4">
-          <h3 class="text-white text-lg font-medium mb-4">测试功能</h3>
-          <div class="grid grid-cols-1 gap-2">
-            <button 
-              @click="addTestRect" 
-              class="btn bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded text-sm"
-            >
-              添加测试矩形
+          
+          <!-- 快速添加按钮 -->
+          <div class="quick-tools mt-4 p-2 border-t border-gray-700">
+            <button @click="addTestPump" class="btn w-full bg-blue-600 hover:bg-blue-500 text-white py-1 rounded text-xs mb-2">
+              <i class="fas fa-plus-circle mr-1"></i>添加泵
             </button>
-            <button 
-              @click="addTestCircle" 
-              class="btn bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-sm"
-            >
-              添加测试圆形
-            </button>
-            <button 
-              @click="addTestPump" 
-              class="btn bg-purple-600 hover:bg-purple-500 text-white px-3 py-2 rounded text-sm"
-            >
-              添加测试泵
+            <button @click="addTestRect" class="btn w-full bg-green-600 hover:bg-green-500 text-white py-1 rounded text-xs">
+              <i class="fas fa-plus-circle mr-1"></i>添加储罐
             </button>
           </div>
         </div>
@@ -147,12 +150,28 @@
       <!-- 编辑器画布 -->
       <div class="canvas-container flex-1 relative">
         <div id="meta2d" ref="container" class="meta2d-container w-full h-full"></div>
+        <div class="grid-overlay"></div>
+        <div class="tech-border top-left"></div>
+        <div class="tech-border top-right"></div>
+        <div class="tech-border bottom-left"></div>
+        <div class="tech-border bottom-right"></div>
+        
         <div class="absolute bottom-4 right-4 text-gray-400 text-sm">
-          缩放: {{ Math.round(scale * 100) }}%
+          <div class="tech-info">
+            <div class="info-item">
+              <span class="info-label">坐标:</span>
+              <span class="info-value">X: {{ mouseX || 0 }} Y: {{ mouseY || 0 }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">状态:</span>
+              <span class="info-value status-normal">在线</span>
+            </div>
+          </div>
         </div>
         
         <!-- 实时数据指标卡 -->
         <div class="data-metrics">
+          <div class="metrics-title-decoration"></div>
           <div class="metrics-title">实时运行数据</div>
           <div class="metrics-container">
             <div class="metric-item">
@@ -185,137 +204,142 @@
         </div>
       </div>
 
-      <!-- 属性面板 -->
-      <div class="property-panel w-64 bg-gray-800 overflow-y-auto p-4">
-        <h3 class="text-white text-lg font-medium mb-4">属性</h3>
-        <div v-if="selectedNode">
-          <div class="mb-4">
-            <label class="block text-gray-400 text-sm mb-1">名称</label>
-            <input 
-              v-model="selectedNode.name" 
-              @change="updateNode"
-              class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white"
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-2 mb-4">
-            <div>
-              <label class="block text-gray-400 text-sm mb-1">X坐标</label>
-              <input 
-                v-model.number="selectedNode.x" 
-                @change="updateNode"
-                type="number" 
-                class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white"
-              />
-            </div>
-            <div>
-              <label class="block text-gray-400 text-sm mb-1">Y坐标</label>
-              <input 
-                v-model.number="selectedNode.y" 
-                @change="updateNode"
-                type="number" 
-                class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white"
-              />
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-2 mb-4">
-            <div>
-              <label class="block text-gray-400 text-sm mb-1">宽度</label>
-              <input 
-                v-model.number="selectedNode.width" 
-                @change="updateNode"
-                type="number" 
-                class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white"
-              />
-            </div>
-            <div>
-              <label class="block text-gray-400 text-sm mb-1">高度</label>
-              <input 
-                v-model.number="selectedNode.height" 
-                @change="updateNode"
-                type="number" 
-                class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white"
-              />
-            </div>
-          </div>
-
-          <!-- 数据绑定区域 -->
-          <div class="mb-4 border-t border-gray-700 pt-4">
-            <h4 class="text-white text-md font-medium mb-3">数据绑定</h4>
+      <!-- 属性面板 - 更窄 -->
+      <div class="property-panel w-52 bg-gray-800 overflow-y-auto">
+        <div class="tabs flex text-center text-xs">
+          <div class="tab flex-1 py-2 border-b-2 border-blue-500 text-blue-400">属性</div>
+        </div>
+        
+        <div class="p-3">
+          <div v-if="selectedNode">
             <div class="mb-3">
-              <label class="block text-gray-400 text-sm mb-1">设备</label>
-              <select 
-                v-model="selectedNode.deviceId" 
-                @change="updateNodeData"
-                class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white"
-              >
-                <option value="">无</option>
-                <option v-for="device in devices" :key="device.id" :value="device.id">
-                  {{ device.name }}
-                </option>
-              </select>
+              <label class="block text-gray-400 text-xs mb-1">名称</label>
+              <input 
+                v-model="selectedNode.name" 
+                @change="updateNode"
+                class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white text-xs"
+              />
             </div>
-            <div v-if="selectedNode.deviceId">
-              <label class="block text-gray-400 text-sm mb-1">数据点</label>
-              <div v-if="deviceDataPoints.length > 0">
-                <div v-for="(point, index) in deviceDataPoints" :key="index" class="flex items-center mb-1">
-                  <input 
-                    type="checkbox" 
-                    :id="'dp-' + index" 
-                    :value="point" 
-                    v-model="selectedNode.dataPoints"
-                    @change="updateNodeData"
-                    class="mr-2"
-                  />
-                  <label :for="'dp-' + index" class="text-gray-300 text-sm">{{ point }}</label>
-                </div>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <div>
+                <label class="block text-gray-400 text-xs mb-1">X坐标</label>
+                <input 
+                  v-model.number="selectedNode.x" 
+                  @change="updateNode"
+                  type="number" 
+                  class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white text-xs"
+                />
               </div>
-              <div v-else class="text-gray-500 text-sm">该设备没有可用数据点</div>
+              <div>
+                <label class="block text-gray-400 text-xs mb-1">Y坐标</label>
+                <input 
+                  v-model.number="selectedNode.y" 
+                  @change="updateNode"
+                  type="number" 
+                  class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white text-xs"
+                />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <div>
+                <label class="block text-gray-400 text-xs mb-1">宽度</label>
+                <input 
+                  v-model.number="selectedNode.width" 
+                  @change="updateNode"
+                  type="number" 
+                  class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white text-xs"
+                />
+              </div>
+              <div>
+                <label class="block text-gray-400 text-xs mb-1">高度</label>
+                <input 
+                  v-model.number="selectedNode.height" 
+                  @change="updateNode"
+                  type="number" 
+                  class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white text-xs"
+                />
+              </div>
+            </div>
+
+            <!-- 数据绑定区域 -->
+            <div class="mb-3 border-t border-gray-700 pt-3">
+              <h4 class="text-white text-sm font-medium mb-2">数据绑定</h4>
+              <div class="mb-2">
+                <label class="block text-gray-400 text-xs mb-1">设备</label>
+                <select 
+                  v-model="selectedNode.deviceId" 
+                  @change="updateNodeData"
+                  class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white text-xs"
+                >
+                  <option value="">无</option>
+                  <option v-for="device in devices" :key="device.id" :value="device.id">
+                    {{ device.name }}
+                  </option>
+                </select>
+              </div>
+              <div v-if="selectedNode.deviceId">
+                <label class="block text-gray-400 text-xs mb-1">数据点</label>
+                <div v-if="deviceDataPoints.length > 0" class="max-h-28 overflow-y-auto pr-1">
+                  <div v-for="(point, index) in deviceDataPoints" :key="index" class="flex items-center mb-1">
+                    <input 
+                      type="checkbox" 
+                      :id="'dp-' + index" 
+                      :value="point" 
+                      v-model="selectedNode.dataPoints"
+                      @change="updateNodeData"
+                      class="mr-1"
+                    />
+                    <label :for="'dp-' + index" class="text-gray-300 text-xs truncate">{{ point }}</label>
+                  </div>
+                </div>
+                <div v-else class="text-gray-500 text-xs">该设备没有可用数据点</div>
+              </div>
+            </div>
+
+            <div class="flex justify-end mt-3">
+              <button @click="deleteNode" class="btn bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-xs">
+                <i class="fas fa-trash-alt mr-1"></i>删除
+              </button>
             </div>
           </div>
-
-          <div class="flex justify-end mt-4">
-            <button @click="deleteNode" class="btn bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded">
-              删除
-            </button>
+          <div v-else-if="selectedLine">
+            <div class="mb-3">
+              <label class="block text-gray-400 text-xs mb-1">名称</label>
+              <input 
+                v-model="selectedLine.name" 
+                @change="updateLine"
+                class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white text-xs"
+              />
+            </div>
+            <div class="mb-3">
+              <label class="block text-gray-400 text-xs mb-1">线条颜色</label>
+              <input 
+                v-model="selectedLine.lineColor" 
+                @change="updateLine"
+                type="color" 
+                class="w-full h-8 bg-gray-700 rounded border border-gray-600"
+              />
+            </div>
+            <div class="mb-3">
+              <label class="block text-gray-400 text-xs mb-1">线条宽度</label>
+              <input 
+                v-model.number="selectedLine.lineWidth" 
+                @change="updateLine"
+                type="number" 
+                min="1" 
+                max="10"
+                class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white text-xs"
+              />
+            </div>
+            <div class="flex justify-end mt-3">
+              <button @click="deleteLine" class="btn bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-xs">
+                <i class="fas fa-trash-alt mr-1"></i>删除
+              </button>
+            </div>
           </div>
-        </div>
-        <div v-else-if="selectedLine">
-          <div class="mb-4">
-            <label class="block text-gray-400 text-sm mb-1">名称</label>
-            <input 
-              v-model="selectedLine.name" 
-              @change="updateLine"
-              class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white"
-            />
+          <div v-else class="text-gray-500 text-center py-10 text-xs">
+            未选中任何元素
           </div>
-          <div class="mb-4">
-            <label class="block text-gray-400 text-sm mb-1">线条颜色</label>
-            <input 
-              v-model="selectedLine.lineColor" 
-              @change="updateLine"
-              type="color" 
-              class="w-full h-8 bg-gray-700 rounded border border-gray-600"
-            />
-          </div>
-          <div class="mb-4">
-            <label class="block text-gray-400 text-sm mb-1">线条宽度</label>
-            <input 
-              v-model.number="selectedLine.lineWidth" 
-              @change="updateLine"
-              type="number" 
-              min="1" 
-              max="10"
-              class="w-full px-2 py-1 bg-gray-700 rounded border border-gray-600 text-white"
-            />
-          </div>
-          <div class="flex justify-end mt-4">
-            <button @click="deleteLine" class="btn bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded">
-              删除
-            </button>
-          </div>
-        </div>
-        <div v-else class="text-gray-500 text-center py-10">
-          未选中任何元素
         </div>
       </div>
     </div>
@@ -328,6 +352,13 @@ import { Meta2d } from '@meta2d/core';
 import '@meta2d/svg';
 import axios from 'axios';
 import { wastewaterComponents, registerWastewaterIcons } from './wastewater-components';
+
+// 添加鼠标坐标跟踪
+const mouseX = ref(0);
+const mouseY = ref(0);
+
+// 组件库标签页
+const activeTab = ref('water'); // 'water' 或 'basic'
 
 // meta2d实例
 let meta2d = null;
@@ -528,6 +559,14 @@ const deviceDataPoints = computed(() => {
   return Object.keys(device.data);
 });
 
+// 更新鼠标移动处理
+const updateMousePosition = (e) => {
+  if (!container.value) return;
+  const rect = container.value.getBoundingClientRect();
+  mouseX.value = Math.round(e.clientX - rect.left);
+  mouseY.value = Math.round(e.clientY - rect.top);
+};
+
 // 初始化编辑器
 onMounted(async () => {
   console.log('初始化Meta2d编辑器...');
@@ -550,6 +589,11 @@ onMounted(async () => {
   });
   meta2d.on('scale', onScale);
   console.log('Meta2d事件注册完成');
+  
+  // 添加鼠标移动监听
+  if (container.value) {
+    container.value.addEventListener('mousemove', updateMousePosition);
+  }
   
   // 初始化画布
   initCanvas();
@@ -917,6 +961,11 @@ onUnmounted(() => {
     meta2d.destroy();
   }
   
+  // 移除鼠标移动监听
+  if (container.value) {
+    container.value.removeEventListener('mousemove', updateMousePosition);
+  }
+  
   // 清除定时器
   if (dataUpdateTimer) {
     clearInterval(dataUpdateTimer);
@@ -926,13 +975,14 @@ onUnmounted(() => {
 
 <style scoped>
 .meta2d-container {
-  background-color: #001e3e; /* 更深邃的蓝色背景 */
+  background-color: #0a1122; /* 更深邃的蓝黑色背景 */
   background-image: 
-    linear-gradient(rgba(0, 204, 255, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 204, 255, 0.07) 1px, transparent 1px);
-  background-size: 20px 20px;
-  box-shadow: inset 0 0 80px rgba(0, 150, 255, 0.15);
-  border: 1px solid rgba(0, 204, 255, 0.2);
+    radial-gradient(circle at 50% 50%, rgba(0, 120, 255, 0.1) 0%, transparent 80%),
+    linear-gradient(rgba(0, 120, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 120, 255, 0.05) 1px, transparent 1px);
+  background-size: 100% 100%, 20px 20px, 20px 20px;
+  box-shadow: inset 0 0 120px rgba(0, 80, 255, 0.15);
+  border: 1px solid rgba(0, 140, 255, 0.3);
   position: relative;
   overflow: hidden;
 }
@@ -946,9 +996,9 @@ onUnmounted(() => {
   right: 0;
   height: 5px;
   background: linear-gradient(90deg, 
-    rgba(0, 204, 255, 0.2), 
-    rgba(0, 204, 255, 0.4), 
-    rgba(0, 204, 255, 0.2));
+    rgba(0, 140, 255, 0.2), 
+    rgba(0, 180, 255, 0.5), 
+    rgba(0, 140, 255, 0.2));
   animation: waterFlow 15s linear infinite;
   z-index: 2;
 }
@@ -966,14 +1016,14 @@ onUnmounted(() => {
 .editor-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  background-color: #001428; /* 更深的蓝色作为容器背景 */
+  height: 100vh;
+  background-color: #070e1a; /* 更深的蓝黑色作为容器背景 */
 }
 
 .toolbar {
   user-select: none;
-  background-color: #001a33 !important; /* 不同的蓝色 */
-  border-bottom: 1px solid rgba(0, 204, 255, 0.3);
+  background-color: #0c1428 !important; /* 深蓝色 */
+  border-bottom: 1px solid rgba(0, 140, 255, 0.3);
 }
 
 /* 解决Safari拖放问题 */
@@ -983,93 +1033,164 @@ onUnmounted(() => {
 
 /* 头部标题样式，类似于图片上的标题 */
 .header-title {
-  color: #00ccff;
-  text-shadow: 0 0 15px rgba(0, 204, 255, 0.8);
-  font-size: 1.8rem;
+  color: #00a0ff;
+  text-shadow: 0 0 15px rgba(0, 160, 255, 0.7);
+  font-size: 1.6rem;
   font-weight: bold;
   text-align: center;
-  padding: 0.8rem 0;
+  padding: 0.6rem 0;
   width: 100%;
-  background: linear-gradient(to right, rgba(0, 20, 40, 0.5), rgba(0, 60, 120, 0.7), rgba(0, 20, 40, 0.5));
-  letter-spacing: 1px;
-  border-bottom: 1px solid rgba(0, 204, 255, 0.3);
+  background: linear-gradient(to right, rgba(10, 25, 50, 0.7), rgba(10, 45, 90, 0.9), rgba(10, 25, 50, 0.7));
+  letter-spacing: 2px;
+  border-bottom: 1px solid rgba(0, 140, 255, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 给标题添加科技感光效 */
+.header-title::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 180, 255, 0.2), transparent);
+  transform: skewX(-25deg);
+  animation: shine 5s infinite;
+}
+
+@keyframes shine {
+  0% { left: -150%; }
+  50% { left: 150%; }
+  100% { left: 150%; }
 }
 
 /* 标题强调样式 */
 .header-title .highlight {
-  color: #00f7ff;
-  text-shadow: 0 0 20px rgba(0, 247, 255, 0.9);
+  color: #00e5ff;
+  text-shadow: 0 0 20px rgba(0, 200, 255, 0.9);
 }
 
 /* 英文副标题 */
 .header-title .subtitle {
-  font-size: 0.9rem;
-  color: rgba(0, 204, 255, 0.7);
-  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: rgba(0, 180, 255, 0.7);
+  margin-top: 0.1rem;
   font-weight: normal;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
 }
 
 /* 组件面板样式 */
 .component-panel {
-  background-color: rgba(0, 20, 40, 0.85) !important;
-  border-right: 1px solid rgba(0, 204, 255, 0.3);
-  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+  background-color: rgba(8, 16, 32, 0.95) !important;
+  border-right: 1px solid rgba(0, 140, 255, 0.3);
+  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
 }
 
 /* 属性面板样式 */
 .property-panel {
-  background-color: rgba(0, 20, 40, 0.85) !important;
-  border-left: 1px solid rgba(0, 204, 255, 0.3);
-  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+  background-color: rgba(8, 16, 32, 0.95) !important;
+  border-left: 1px solid rgba(0, 140, 255, 0.3);
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
 }
 
 /* 组件项样式 */
 .component {
-  border: 1px solid rgba(0, 204, 255, 0.4) !important;
-  background-color: rgba(0, 30, 60, 0.5) !important;
+  border: 1px solid rgba(0, 140, 255, 0.4) !important;
+  background-color: rgba(12, 24, 48, 0.5) !important;
   transition: all 0.2s ease;
+  backdrop-filter: blur(2px);
 }
 .component:hover {
-  border-color: #00ccff !important; 
-  background-color: rgba(0, 42, 84, 0.7) !important;
-  box-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+  border-color: #00a0ff !important; 
+  background-color: rgba(15, 30, 60, 0.7) !important;
+  box-shadow: 0 0 10px rgba(0, 160, 255, 0.6);
   transform: translateY(-2px);
+}
+
+/* 组件网格布局 */
+.components-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+/* 标签页样式 */
+.tabs {
+  background-color: rgba(10, 30, 60, 0.5);
+}
+
+.tab {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  background-color: rgba(15, 40, 80, 0.5);
 }
 
 /* 按钮样式 */
 .btn {
-  background-color: rgba(0, 42, 84, 0.7) !important;
-  border: 1px solid rgba(0, 204, 255, 0.4);
+  background-color: rgba(15, 30, 60, 0.7) !important;
+  border: 1px solid rgba(0, 140, 255, 0.5);
   transition: all 0.2s ease;
+  backdrop-filter: blur(2px);
 }
 .btn:hover {
-  background-color: rgba(0, 60, 120, 0.8) !important;
+  background-color: rgba(20, 40, 80, 0.8) !important;
+  border-color: #00a0ff;
+  box-shadow: 0 0 8px rgba(0, 160, 255, 0.5), inset 0 0 15px rgba(0, 160, 255, 0.3);
+}
+
+/* 图标按钮 */
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(15, 30, 60, 0.7);
+  border: 1px solid rgba(0, 140, 255, 0.4);
+  border-radius: 4px;
+  color: #e6f7ff;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background-color: rgba(20, 40, 80, 0.8);
+  border-color: #00a0ff;
+  box-shadow: 0 0 8px rgba(0, 160, 255, 0.4);
+}
+
+.btn-icon.active {
+  background-color: rgba(0, 102, 204, 0.8);
   border-color: #00ccff;
-  box-shadow: 0 0 8px rgba(0, 204, 255, 0.4);
+  box-shadow: 0 0 10px rgba(0, 160, 255, 0.6), inset 0 0 15px rgba(0, 180, 255, 0.4);
 }
 
 /* 添加缩放指示器样式 */
 .canvas-container .absolute {
-  background-color: rgba(0, 30, 60, 0.6);
+  background-color: rgba(10, 30, 60, 0.7);
   padding: 4px 10px;
   border-radius: 4px;
-  border: 1px solid rgba(0, 204, 255, 0.3);
-  color: #00ccff;
+  border: 1px solid rgba(0, 140, 255, 0.5);
+  color: #00c0ff;
   font-weight: 500;
+  backdrop-filter: blur(5px);
 }
 
 /* 表单控件样式统一 */
 input, select {
-  background-color: rgba(0, 30, 60, 0.5) !important;
-  border: 1px solid rgba(0, 204, 255, 0.4) !important;
+  background-color: rgba(10, 30, 60, 0.6) !important;
+  border: 1px solid rgba(0, 140, 255, 0.5) !important;
   color: #e6f7ff !important;
   transition: all 0.2s ease;
 }
 
 input:focus, select:focus {
-  border-color: #00ccff !important;
-  box-shadow: 0 0 0 2px rgba(0, 204, 255, 0.2) !important;
+  border-color: #00a0ff !important;
+  box-shadow: 0 0 0 2px rgba(0, 160, 255, 0.2) !important;
   outline: none !important;
 }
 
@@ -1093,26 +1214,38 @@ input:focus, select:focus {
 }
 
 /* 搜索框样式 */
+.search-container {
+  margin-bottom: 0.5rem;
+}
+
 input[type="text"]::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(180, 230, 255, 0.4);
 }
 
 /* 滚动条样式 */
-.component-panel::-webkit-scrollbar {
-  width: 6px;
+.component-panel::-webkit-scrollbar, 
+.property-panel::-webkit-scrollbar,
+.max-h-28::-webkit-scrollbar {
+  width: 4px;
 }
 
-.component-panel::-webkit-scrollbar-track {
-  background: rgba(0, 20, 40, 0.5);
+.component-panel::-webkit-scrollbar-track, 
+.property-panel::-webkit-scrollbar-track,
+.max-h-28::-webkit-scrollbar-track {
+  background: rgba(8, 16, 32, 0.5);
 }
 
-.component-panel::-webkit-scrollbar-thumb {
-  background: rgba(0, 204, 255, 0.5);
-  border-radius: 3px;
+.component-panel::-webkit-scrollbar-thumb, 
+.property-panel::-webkit-scrollbar-thumb,
+.max-h-28::-webkit-scrollbar-thumb {
+  background: rgba(0, 140, 255, 0.5);
+  border-radius: 2px;
 }
 
-.component-panel::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 204, 255, 0.7);
+.component-panel::-webkit-scrollbar-thumb:hover, 
+.property-panel::-webkit-scrollbar-thumb:hover,
+.max-h-28::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 160, 255, 0.7);
 }
 
 /* 数据指标卡样式 */
@@ -1120,23 +1253,24 @@ input[type="text"]::placeholder {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  width: 280px;
-  background: rgba(0, 20, 40, 0.8);
-  border: 1px solid rgba(0, 204, 255, 0.4);
+  width: 250px;
+  background: rgba(8, 16, 32, 0.8);
+  border: 1px solid rgba(0, 140, 255, 0.5);
   border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 120, 255, 0.2);
   z-index: 10;
   overflow: hidden;
+  backdrop-filter: blur(5px);
 }
 
 .metrics-title {
   font-size: 0.9rem;
-  color: #00ccff;
-  text-shadow: 0 0 5px rgba(0, 204, 255, 0.5);
+  color: #00c0ff;
+  text-shadow: 0 0 5px rgba(0, 180, 255, 0.5);
   padding: 0.5rem;
-  background: rgba(0, 30, 60, 0.9);
+  background: rgba(10, 30, 60, 0.9);
   text-align: center;
-  border-bottom: 1px solid rgba(0, 204, 255, 0.4);
+  border-bottom: 1px solid rgba(0, 140, 255, 0.5);
 }
 
 .metrics-container {
@@ -1150,14 +1284,14 @@ input[type="text"]::placeholder {
 
 .metric-name {
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(220, 240, 255, 0.8);
   margin-bottom: 0.2rem;
 }
 
 .metric-value {
   font-size: 1.2rem;
-  color: #00f7ff;
-  text-shadow: 0 0 8px rgba(0, 247, 255, 0.6);
+  color: #00e5ff;
+  text-shadow: 0 0 8px rgba(0, 200, 255, 0.6);
   font-weight: 500;
   margin-bottom: 0.3rem;
   display: flex;
@@ -1166,20 +1300,20 @@ input[type="text"]::placeholder {
 
 .unit {
   font-size: 0.7rem;
-  color: rgba(0, 204, 255, 0.7);
+  color: rgba(0, 180, 255, 0.7);
   margin-left: 0.3rem;
 }
 
 .metric-chart {
   height: 6px;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(220, 240, 255, 0.1);
   border-radius: 3px;
   overflow: hidden;
 }
 
 .chart-bar {
   height: 100%;
-  background: linear-gradient(90deg, #0088cc, #00ccff);
+  background: linear-gradient(90deg, #0066cc, #00c0ff);
   border-radius: 3px;
   transition: width 0.8s ease-in-out;
 }
@@ -1191,14 +1325,14 @@ input[type="text"]::placeholder {
   width: 0.8rem;
   height: 0.8rem;
   border-radius: 50%;
-  background-color: #ff3333;
-  box-shadow: 0 0 10px #ff3333;
+  background-color: #ff5555;
+  box-shadow: 0 0 10px #ff5555;
   animation: pulse 2s infinite;
 }
 
 .status-normal {
-  background-color: #00cc66;
-  box-shadow: 0 0 10px #00cc66;
+  background-color: #00e060;
+  box-shadow: 0 0 10px #00e060;
 }
 
 @keyframes pulse {
@@ -1214,5 +1348,124 @@ input[type="text"]::placeholder {
     transform: scale(1);
     opacity: 1;
   }
+}
+
+/* 添加科技感装饰线 */
+.tech-line {
+  position: absolute;
+  height: 2px;
+  width: 15%;
+  background: linear-gradient(90deg, transparent, #00c0ff, transparent);
+}
+
+.tech-line.left {
+  left: 5%;
+  bottom: 15px;
+}
+
+.tech-line.right {
+  right: 5%;
+  bottom: 15px;
+}
+
+/* 添加科技感边框 */
+.tech-border {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #00a0ff;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.tech-border.top-left {
+  top: 10px;
+  left: 10px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.tech-border.top-right {
+  top: 10px;
+  right: 10px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.tech-border.bottom-left {
+  bottom: 10px;
+  left: 10px;
+  border-right: none;
+  border-top: none;
+}
+
+.tech-border.bottom-right {
+  bottom: 10px;
+  right: 10px;
+  border-left: none;
+  border-top: none;
+}
+
+/* 添加信息显示区样式 */
+.tech-info {
+  display: flex;
+  flex-direction: column;
+  background: rgba(8, 20, 40, 0.7);
+  border: 1px solid rgba(0, 140, 255, 0.5);
+  border-radius: 4px;
+  padding: 8px 12px;
+  backdrop-filter: blur(5px);
+  color: #00c0ff;
+  font-size: 0.8rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.info-label {
+  color: rgba(220, 240, 255, 0.8);
+  margin-right: 8px;
+}
+
+.info-value {
+  color: #00e5ff;
+  font-weight: 500;
+}
+
+.info-value.status-normal {
+  color: #00e060;
+}
+
+/* 添加指标卡标题装饰 */
+.metrics-title-decoration {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 20px 20px 0;
+  border-color: transparent #00a0ff transparent transparent;
+}
+
+/* 网格线叠加层 */
+.grid-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 1px 1px, rgba(0, 140, 255, 0.1) 1px, transparent 0);
+  background-size: 30px 30px;
+  z-index: 1;
+}
+
+/* 缩放显示 */
+.zoom-display {
+  font-family: monospace;
 }
 </style> 

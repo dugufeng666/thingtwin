@@ -7,7 +7,14 @@
           轻量级、开源的工业组态与数字孪生平台，通过直观的拖拽式编辑器构建工业监控大屏
         </p>
         <div class="flex flex-wrap justify-center gap-4">
-          <router-link to="/editor" class="btn btn-primary">开始设计</router-link>
+          <router-link to="/editor" class="btn-cta">
+            <span class="btn-text">开始设计</span>
+            <span class="btn-icon">→</span>
+          </router-link>
+          <router-link to="/meta2d" class="btn-meta2d">
+            <span class="btn-text">Meta2D编辑器</span>
+            <span class="btn-icon">⚡</span>
+          </router-link>
           <router-link to="/templates" class="btn btn-secondary">浏览模板</router-link>
         </div>
       </div>
@@ -99,4 +106,117 @@ npm run dev</pre>
 
 <script setup lang="ts">
 // Home view logic
-</script> 
+</script>
+
+<style scoped>
+.btn-cta {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #0066cc, #00a0ff);
+  color: white;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 15px rgba(0, 160, 255, 0.5);
+  animation: pulse 2s infinite;
+}
+
+.btn-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: all 0.5s;
+}
+
+.btn-cta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 25px rgba(0, 180, 255, 0.7);
+}
+
+.btn-cta:hover::before {
+  left: 100%;
+  transition: 0.7s;
+}
+
+.btn-meta2d {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #6600cc, #9900ff);
+  color: white;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 15px rgba(153, 0, 255, 0.5);
+  animation: pulse-purple 2s infinite;
+}
+
+.btn-meta2d::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: all 0.5s;
+}
+
+.btn-meta2d:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 25px rgba(153, 0, 255, 0.7);
+}
+
+.btn-meta2d:hover::before {
+  left: 100%;
+  transition: 0.7s;
+}
+
+@keyframes pulse-purple {
+  0% {
+    box-shadow: 0 0 15px rgba(153, 0, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(153, 0, 255, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(153, 0, 255, 0.5);
+  }
+}
+
+.btn-text {
+  font-size: 1.1rem;
+  margin-right: 0.5rem;
+}
+
+.btn-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.btn-cta:hover .btn-icon,
+.btn-meta2d:hover .btn-icon {
+  transform: translateX(4px);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 15px rgba(0, 160, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 180, 255, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(0, 160, 255, 0.5);
+  }
+}
+</style> 

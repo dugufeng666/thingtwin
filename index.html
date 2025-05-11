@@ -4,7 +4,42 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ThingTwin - IoT Digital Twin Platform</title>
+    <title>ThingTwin - 污水处理系统数字孪生平台</title>
+    <!-- 添加Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <!-- 添加自定义字体 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <style>
+      /* 添加全局样式 */
+      body {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background-color: #070e1a;
+        color: #e6f7ff;
+        margin: 0;
+        padding: 0;
+      }
+      /* 页面加载动画 */
+      #app::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #070e1a;
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2rem;
+        color: #00c0ff;
+        animation: fadeOut 1s ease-out 1s forwards;
+      }
+      @keyframes fadeOut {
+        0% { opacity: 1; }
+        100% { opacity: 0; visibility: hidden; }
+      }
+    </style>
   </head>
   <body>
     <div id="app"></div>

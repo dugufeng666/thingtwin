@@ -106,7 +106,9 @@ export const wastewaterComponents = () => {
             rect: {
               fill: 'rgba(102, 51, 0, 0.6)',
               strokeWidth: 2,
-              stroke: '#996633'
+              stroke: '#cc8833',
+              shadowColor: 'rgba(102, 51, 0, 0.3)',
+              shadowBlur: 10
             }
           }
         },
@@ -121,7 +123,9 @@ export const wastewaterComponents = () => {
             rect: {
               fill: 'rgba(100, 100, 100, 0.6)',
               strokeWidth: 2,
-              stroke: '#999999'
+              stroke: '#aaaaaa',
+              shadowColor: 'rgba(200, 200, 200, 0.3)',
+              shadowBlur: 10
             }
           }
         },
@@ -164,9 +168,11 @@ export const wastewaterComponents = () => {
             width: 80,
             height: 80,
             ellipse: {
-              fill: 'rgba(0, 102, 204, 0.6)',
+              fill: 'rgba(0, 140, 220, 0.6)',
               strokeWidth: 2,
-              stroke: '#0066cc'
+              stroke: '#00a0ff',
+              shadowColor: 'rgba(0, 160, 255, 0.3)',
+              shadowBlur: 10
             }
           }
         },
@@ -181,7 +187,9 @@ export const wastewaterComponents = () => {
             ellipse: {
               fill: 'rgba(153, 51, 0, 0.6)',
               strokeWidth: 2,
-              stroke: '#993300'
+              stroke: '#cc6633',
+              shadowColor: 'rgba(204, 102, 51, 0.3)',
+              shadowBlur: 10
             }
           }
         },
@@ -209,9 +217,11 @@ export const wastewaterComponents = () => {
             width: 120,
             height: 100,
             rect: {
-              fill: 'rgba(0, 102, 153, 0.6)',
+              fill: 'rgba(0, 120, 180, 0.6)',
               strokeWidth: 2,
-              stroke: '#006699'
+              stroke: '#0088cc',
+              shadowColor: 'rgba(0, 136, 204, 0.3)',
+              shadowBlur: 10
             }
           }
         },
@@ -237,8 +247,10 @@ export const wastewaterComponents = () => {
             name: 'pipe',
             lineName: 'line',
             lineWidth: 10,
-            strokeStyle: '#33ccff',
-            dash: 0
+            strokeStyle: '#00c8ff',
+            dash: 0,
+            shadowColor: 'rgba(0, 200, 255, 0.4)',
+            shadowBlur: 5
           }
         },
         {
@@ -252,7 +264,9 @@ export const wastewaterComponents = () => {
             ellipse: {
               fill: 'rgba(255, 153, 0, 0.6)',
               strokeWidth: 2,
-              stroke: '#ff9900'
+              stroke: '#ffaa00',
+              shadowColor: 'rgba(255, 170, 0, 0.3)',
+              shadowBlur: 10
             }
           }
         },
@@ -267,7 +281,9 @@ export const wastewaterComponents = () => {
             rect: {
               fill: 'rgba(0, 153, 204, 0.6)',
               strokeWidth: 2,
-              stroke: '#0099cc'
+              stroke: '#00aadd',
+              shadowColor: 'rgba(0, 170, 221, 0.3)',
+              shadowBlur: 10
             }
           }
         },
@@ -283,7 +299,9 @@ export const wastewaterComponents = () => {
             rect: {
               fill: 'rgba(0, 102, 153, 0.6)',
               strokeWidth: 2,
-              stroke: '#006699'
+              stroke: '#0088cc',
+              shadowColor: 'rgba(0, 136, 204, 0.3)',
+              shadowBlur: 10
             }
           }
         },
@@ -313,7 +331,9 @@ export const wastewaterComponents = () => {
             rect: {
               fill: 'rgba(0, 153, 102, 0.6)',
               strokeWidth: 2,
-              stroke: '#009966'
+              stroke: '#00cc88',
+              shadowColor: 'rgba(0, 204, 136, 0.3)',
+              shadowBlur: 10
             }
           }
         },
@@ -823,7 +843,7 @@ export const registerWastewaterIcons = () => {
     svg.appendChild(path);
   });
   
-  // 添加图标分组
+  // 修改组图标样式
   const groupSymbol = document.createElementNS('http://www.w3.org/2000/svg', 'symbol');
   groupSymbol.setAttribute('id', 'wastewater');
   groupSymbol.setAttribute('viewBox', '0 0 100 100');
@@ -832,8 +852,8 @@ export const registerWastewaterIcons = () => {
   const groupRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   groupRect.setAttribute('width', '100');
   groupRect.setAttribute('height', '100');
-  groupRect.setAttribute('fill', '#2196F3');
-  groupRect.setAttribute('opacity', '0.5');
+  groupRect.setAttribute('fill', '#0088cc');
+  groupRect.setAttribute('opacity', '0.7');
   
   const groupText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
   groupText.setAttribute('x', '50');

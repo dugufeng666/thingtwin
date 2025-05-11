@@ -14,6 +14,11 @@ const router = createRouter({
       component: () => import('../views/Meta2dEditorView.vue')
     },
     {
+      path: '/editor',
+      name: 'editor',
+      component: () => import('../views/EditorView.vue')
+    },
+    {
       path: '/templates',
       name: 'templates',
       component: () => import('../views/TemplatesView.vue')

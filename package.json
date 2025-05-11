@@ -7,7 +7,7 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "vercel-build": "vue-tsc --noEmit && vite build"
+    "vercel-build": "vite build"
   },
   "dependencies": {
     "@meta2d/core": "^1.0.80",

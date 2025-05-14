@@ -8,12 +8,8 @@
         </p>
         <div class="flex flex-wrap justify-center gap-4">
           <router-link to="/editor" class="btn-cta">
-            <span class="btn-text">开始设计</span>
+            <span class="btn-text">进入组态设计</span>
             <span class="btn-icon">→</span>
-          </router-link>
-          <router-link to="/meta2d" class="btn-meta2d">
-            <span class="btn-text">Meta2D编辑器</span>
-            <span class="btn-icon">⚡</span>
           </router-link>
           <router-link to="/templates" class="btn btn-secondary">浏览模板</router-link>
         </div>
@@ -145,54 +141,6 @@ npm run dev</pre>
   transition: 0.7s;
 }
 
-.btn-meta2d {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #6600cc, #9900ff);
-  color: white;
-  font-weight: bold;
-  border-radius: 0.5rem;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 0 15px rgba(153, 0, 255, 0.5);
-  animation: pulse-purple 2s infinite;
-}
-
-.btn-meta2d::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: all 0.5s;
-}
-
-.btn-meta2d:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 0 25px rgba(153, 0, 255, 0.7);
-}
-
-.btn-meta2d:hover::before {
-  left: 100%;
-  transition: 0.7s;
-}
-
-@keyframes pulse-purple {
-  0% {
-    box-shadow: 0 0 15px rgba(153, 0, 255, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(153, 0, 255, 0.8);
-  }
-  100% {
-    box-shadow: 0 0 15px rgba(153, 0, 255, 0.5);
-  }
-}
-
 .btn-text {
   font-size: 1.1rem;
   margin-right: 0.5rem;
@@ -203,8 +151,7 @@ npm run dev</pre>
   transition: transform 0.3s ease;
 }
 
-.btn-cta:hover .btn-icon,
-.btn-meta2d:hover .btn-icon {
+.btn-cta:hover .btn-icon {
   transform: translateX(4px);
 }
 

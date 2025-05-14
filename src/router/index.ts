@@ -11,12 +11,12 @@ const router = createRouter({
     {
       path: '/meta2d',
       name: 'meta2d',
-      component: () => import('../views/Meta2dEditorView.vue')
+      redirect: '/editor'
     },
     {
       path: '/editor',
       name: 'editor',
-      component: () => import('../views/EditorView.vue')
+      component: () => import('../meta2d/Meta2dEditor.vue')
     },
     {
       path: '/templates',

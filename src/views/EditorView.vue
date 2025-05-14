@@ -20,6 +20,19 @@
         <button @click="loadScene" class="btn bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded text-sm">
           <i class="fas fa-folder-open"></i> 打开
         </button>
+        <button @click="exportToJSON" class="btn bg-purple-600 hover:bg-purple-500 text-white px-2 py-1 rounded text-sm">
+          <i class="fas fa-file-export"></i> 导出JSON
+        </button>
+        <button @click="triggerImportJSON" class="btn bg-green-600 hover:bg-green-500 text-white px-2 py-1 rounded text-sm">
+          <i class="fas fa-file-import"></i> 导入JSON
+        </button>
+        <input 
+          type="file" 
+          ref="jsonFileInput" 
+          accept=".json" 
+          style="display: none" 
+          @change="importFromJSON"
+        />
       </div>
       <div class="divider border-l border-gray-600 h-6 mx-2"></div>
       <div class="draw-tools flex space-x-2">
@@ -34,6 +47,9 @@
         </button>
         <button @click="setTool('line')" class="btn-icon" :class="{ 'active': activeTool === 'line' }">
           <i class="fas fa-minus"></i>
+        </button>
+        <button @click="setTool('connector')" class="btn-icon" :class="{ 'active': activeTool === 'connector' }">
+          <i class="fas fa-project-diagram"></i>
         </button>
         <button @click="setTool('text')" class="btn-icon" :class="{ 'active': activeTool === 'text' }">
           <i class="fas fa-font"></i>
@@ -119,18 +135,42 @@
               class="component-item p-2 bg-gray-800 rounded cursor-pointer hover:bg-gray-700 flex flex-col items-center"
               draggable="true"
               @dragstart="(e) => onDragStart(e, item)"
+              @click="onComponentClick(item)"
             >
-              <div class="icon-container w-10 h-10 flex items-center justify-center mb-1">
-                <component :is="item.icon" class="w-8 h-8" />
+              <div class="icon-container w-10 h-10 flex items-center justify-center mb-1 text-blue-400">
+                <!-- 直接使用SVG渲染基础图形图标 -->
+                <svg v-if="item.type === 'rect'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <rect x="2" y="2" width="20" height="20" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
+                </svg>
+                <svg v-else-if="item.type === 'circle'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
+                </svg>
+                <svg v-else-if="item.type === 'polygon' && item.id === 'triangle'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <polygon points="12,2 22,22 2,22" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
+                </svg>
+                <svg v-else-if="item.type === 'polygon' && item.id === 'diamond'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <polygon points="12,2 22,12 12,22 2,12" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
+                </svg>
+                <svg v-else-if="item.type === 'text'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <text x="12" y="16" text-anchor="middle" font-size="18" font-weight="bold" fill="currentColor">T</text>
+                </svg>
+                <svg v-else class="w-8 h-8" viewBox="0 0 24 24">
+                  <rect x="2" y="2" width="20" height="20" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" rx="2" ry="2" />
+                </svg>
               </div>
-              <span class="text-xs text-center">{{ item.name }}</span>
+              <span class="text-xs text-center truncate w-full">{{ item.name }}</span>
             </div>
           </div>
         </div>
       </div>
       
       <!-- 改进画布区域 -->
-      <div class="canvas-container flex-1 relative" ref="canvasContainer">
+      <div 
+        class="canvas-container flex-1 relative" 
+        ref="canvasContainer"
+        @dragover.prevent="onCanvasDragOver"
+        @dragleave.prevent="onCanvasDragLeave"
+      >
         <div class="grid-overlay"></div>
         
         <div ref="canvasWrapper" class="w-full h-full overflow-auto">
@@ -138,8 +178,11 @@
             ref="stage"
             :config="stageConfig"
             @dragover.prevent
+            @dragenter.prevent
             @drop="onDrop"
             @click="onCanvasClick"
+            @mousemove="updateMousePositionOnCanvas"
+            @wheel="handleWheelZoom"
           >
             <v-layer ref="layer">
               <v-group
@@ -149,11 +192,18 @@
                   x: element.x,
                   y: element.y,
                   draggable: true,
-                  id: element.id
+                  id: element.id,
+                  rotation: element.rotation || 0,
+                  shadowColor: selectedElement === index ? 'rgba(0, 160, 255, 0.6)' : undefined,
+                  shadowBlur: selectedElement === index ? 10 : undefined,
+                  shadowOffset: selectedElement === index ? { x: 0, y: 0 } : undefined,
+                  shadowOpacity: selectedElement === index ? 0.6 : undefined
                 }"
                 @dragend="handleDragEnd($event, index)"
                 @click="selectElement(index)"
                 @tap="selectElement(index)"
+                @mouseenter="handleElementHover(index, true)"
+                @mouseleave="handleElementHover(index, false)"
               >
                 <v-rect
                   v-if="element.type === 'rect'"
@@ -162,7 +212,13 @@
                     height: element.height,
                     fill: element.fill,
                     stroke: element.stroke,
-                    strokeWidth: 1
+                    strokeWidth: element.strokeWidth || 1,
+                    cornerRadius: element.cornerRadius || 0,
+                    opacity: element.opacity !== undefined ? element.opacity : 1,
+                    shadowColor: element.shadowColor,
+                    shadowBlur: element.shadowBlur,
+                    shadowOffset: element.shadowOffset,
+                    shadowOpacity: element.shadowOpacity
                   }"
                 ></v-rect>
                 <v-circle
@@ -171,7 +227,12 @@
                     radius: element.radius,
                     fill: element.fill,
                     stroke: element.stroke,
-                    strokeWidth: 1
+                    strokeWidth: element.strokeWidth || 1,
+                    opacity: element.opacity !== undefined ? element.opacity : 1,
+                    shadowColor: element.shadowColor,
+                    shadowBlur: element.shadowBlur,
+                    shadowOffset: element.shadowOffset,
+                    shadowOpacity: element.shadowOpacity
                   }"
                 ></v-circle>
                 <v-image
@@ -179,9 +240,47 @@
                   :config="{
                     image: loadedImages[element.id],
                     width: element.width,
-                    height: element.height
+                    height: element.height,
+                    opacity: element.opacity !== undefined ? element.opacity : 1
                   }"
                 ></v-image>
+                <v-text
+                  v-else-if="element.type === 'text'"
+                  :config="{
+                    text: element.text || 'Text',
+                    fontSize: element.fontSize || 16,
+                    fontFamily: element.fontFamily || 'Arial',
+                    fill: element.fill || '#FFFFFF',
+                    padding: element.padding || 5,
+                    align: element.align || 'center',
+                    opacity: element.opacity !== undefined ? element.opacity : 1
+                  }"
+                ></v-text>
+                <v-line 
+                  v-else-if="element.type === 'polygon'"
+                  :config="{
+                    points: element.points,
+                    fill: element.fill,
+                    stroke: element.stroke,
+                    strokeWidth: element.strokeWidth || 1,
+                    closed: true,
+                    opacity: element.opacity !== undefined ? element.opacity : 1,
+                    shadowColor: element.shadowColor,
+                    shadowBlur: element.shadowBlur,
+                    shadowOffset: element.shadowOffset,
+                    shadowOpacity: element.shadowOpacity
+                  }"
+                ></v-line>
+                <v-path 
+                  v-else-if="element.type === 'path'"
+                  :config="{
+                    data: element.data,
+                    fill: element.fill,
+                    stroke: element.stroke,
+                    strokeWidth: element.strokeWidth || 1,
+                    opacity: element.opacity !== undefined ? element.opacity : 1
+                  }"
+                ></v-path>
                 <v-transformer
                   v-if="selectedElement === index"
                   :config="{
@@ -190,7 +289,15 @@
                         return oldBox;
                       }
                       return newBox;
-                    }
+                    },
+                    rotateEnabled: true,
+                    enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+                    anchorStroke: '#00a0ff',
+                    anchorFill: '#0a1122',
+                    anchorSize: 8,
+                    borderStroke: '#00a0ff',
+                    borderDash: [5, 5],
+                    rotationSnaps: [0, 45, 90, 135, 180, 225, 270, 315]
                   }"
                   @transform="handleTransform($event, index)"
                 ></v-transformer>
@@ -363,9 +470,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted, watch, computed } from 'vue';
+import { ref, reactive, onMounted, onUnmounted, watch, computed, nextTick, h } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
 import { wastewaterComponents, registerWastewaterIcons } from '../meta2d/wastewater-components';
+import Konva from 'konva';
 
 // 定义组件类型
 interface Component {
@@ -399,6 +507,12 @@ const mouseY = ref(0);
 
 // 当前选中的工具
 const activeTool = ref<string>('select');
+// 当前连接线起点
+const connectorStartPoint = ref<{ x: number; y: number; nodeId: string | null } | null>(null);
+// 当前临时连接线
+const tempConnector = ref<any>(null);
+// 所有连接线
+const connectors = ref<any[]>([]);
 // 缩放比例
 const scale = ref<number>(1);
 
@@ -433,12 +547,97 @@ const updateMousePosition = (e: MouseEvent) => {
   mouseY.value = Math.round(e.clientY - rect.top);
 };
 
+// 处理画布上的鼠标移动，显示考虑缩放的坐标
+const updateMousePositionOnCanvas = (e: any) => {
+  const stage = e.target.getStage();
+  const pointerPosition = stage.getPointerPosition();
+  const stagePos = stage.position();
+  
+  // 计算考虑缩放后的鼠标位置
+  mouseX.value = Math.round((pointerPosition.x - stagePos.x) / scale.value);
+  mouseY.value = Math.round((pointerPosition.y - stagePos.y) / scale.value);
+};
+
+// 处理滚轮缩放
+const handleWheelZoom = (e: any) => {
+  e.evt.preventDefault();
+  
+  const stage = e.target.getStage();
+  const oldScale = scale.value;
+  const pointerPosition = stage.getPointerPosition();
+  const mousePointTo = {
+    x: (pointerPosition.x - stage.x()) / oldScale,
+    y: (pointerPosition.y - stage.y()) / oldScale
+  };
+  
+  // 计算新的缩放比例
+  const newScale = e.evt.deltaY < 0 ? oldScale * 1.1 : oldScale / 1.1;
+  scale.value = Math.max(0.1, Math.min(newScale, 5));
+  
+  // 更新舞台位置和缩放
+  stage.scale({ x: scale.value, y: scale.value });
+  
+  // 调整舞台位置以保持鼠标位置固定
+  const newPos = {
+    x: pointerPosition.x - mousePointTo.x * scale.value,
+    y: pointerPosition.y - mousePointTo.y * scale.value
+  };
+  stage.position(newPos);
+  stage.batchDraw();
+};
+
+// 处理元素悬停
+const handleElementHover = (index: number, isHovering: boolean) => {
+  if (selectedElement.value !== index) {
+    const stageInstance = stage.value?.getStage();
+    if (stageInstance) {
+      const node = stageInstance.findOne(`#${elements.value[index].id}`);
+      if (node) {
+        // 在悬停时添加柔和发光效果
+        node.shadowEnabled(isHovering);
+        node.shadowColor(isHovering ? '#00a0ff' : undefined);
+        node.shadowBlur(isHovering ? 10 : 0);
+        node.shadowOpacity(isHovering ? 0.5 : 0);
+        stageInstance.batchDraw();
+      }
+    }
+  }
+};
+
 // 设置当前工具
 const setTool = (tool: string) => {
   activeTool.value = tool;
   
   // 清除选中状态
   selectedElement.value = null;
+  
+  // 如果切换到连接线工具，需要设置舞台为可拖动
+  if (tool === 'connector') {
+    // 准备创建连接线
+    if (stage.value) {
+      const stageInstance = stage.value.getStage();
+      
+      // 添加鼠标移动监听，用于绘制临时连接线
+      stageInstance.on('mousemove.connector', handleConnectorMouseMove);
+      stageInstance.on('click.connector', handleConnectorClick);
+    }
+  } else {
+    // 移除连接线相关的事件监听
+    if (stage.value) {
+      const stageInstance = stage.value.getStage();
+      stageInstance.off('mousemove.connector');
+      stageInstance.off('click.connector');
+    }
+    
+    // 清除临时连接线
+    if (tempConnector.value) {
+      tempConnector.value.destroy();
+      tempConnector.value = null;
+    }
+    
+    // 重置连接线起点
+    connectorStartPoint.value = null;
+  }
   
   // 根据工具类型设置舞台配置
   if (tool === 'select') {
@@ -448,6 +647,132 @@ const setTool = (tool: string) => {
     // 绘制模式时禁止拖动
     stageConfig.draggable = false;
   }
+};
+
+// 处理连接线鼠标移动
+const handleConnectorMouseMove = (e: any) => {
+  if (activeTool.value !== 'connector' || !connectorStartPoint.value) return;
+  
+  const stage = e.target.getStage();
+  const pointerPosition = stage.getPointerPosition();
+  if (!pointerPosition) return;
+  
+  // 计算相对于画布的实际位置，考虑缩放和平移
+  const endPoint = {
+    x: (pointerPosition.x - stage.position().x) / scale.value,
+    y: (pointerPosition.y - stage.position().y) / scale.value
+  };
+  
+  // 如果已有临时线，更新它；否则创建新的临时线
+  if (tempConnector.value) {
+    tempConnector.value.points([
+      connectorStartPoint.value.x,
+      connectorStartPoint.value.y,
+      endPoint.x,
+      endPoint.y
+    ]);
+  } else {
+    // 创建临时连接线
+    if (layer.value) {
+      tempConnector.value = new Konva.Line({
+        points: [
+          connectorStartPoint.value.x,
+          connectorStartPoint.value.y,
+          endPoint.x,
+          endPoint.y
+        ],
+        stroke: '#00a0ff',
+        strokeWidth: 2,
+        dash: [5, 5],
+        listening: false
+      });
+      
+      layer.value.getStage().findOne('Layer').add(tempConnector.value);
+      layer.value.getStage().batchDraw();
+    }
+  }
+};
+
+// 处理连接线点击
+const handleConnectorClick = (e: any) => {
+  if (activeTool.value !== 'connector') return;
+  
+  const stage = e.target.getStage();
+  const pointerPosition = stage.getPointerPosition();
+  if (!pointerPosition) return;
+  
+  // 计算相对于画布的实际位置，考虑缩放和平移
+  const clickPoint = {
+    x: (pointerPosition.x - stage.position().x) / scale.value,
+    y: (pointerPosition.y - stage.position().y) / scale.value
+  };
+  
+  // 检查点击的是否是某个节点
+  let targetNodeId = null;
+  const hitResult = stage.getIntersection(pointerPosition);
+  if (hitResult && hitResult.getAttr('id')) {
+    targetNodeId = hitResult.getAttr('id');
+  }
+  
+  // 如果没有起点，设置起点
+  if (!connectorStartPoint.value) {
+    connectorStartPoint.value = {
+      x: clickPoint.x,
+      y: clickPoint.y,
+      nodeId: targetNodeId
+    };
+    return;
+  }
+  
+  // 如果有起点，创建连接线
+  const connector = {
+    id: uuidv4(),
+    type: 'connector',
+    fromX: connectorStartPoint.value.x,
+    fromY: connectorStartPoint.value.y,
+    toX: clickPoint.x,
+    toY: clickPoint.y,
+    fromNodeId: connectorStartPoint.value.nodeId,
+    toNodeId: targetNodeId,
+    stroke: '#00a0ff',
+    strokeWidth: 2,
+    lineDash: [0, 0],
+    arrow: true
+  };
+  
+  // 添加到连接线列表
+  connectors.value.push(connector);
+  
+  // 移除临时连接线
+  if (tempConnector.value) {
+    tempConnector.value.destroy();
+    tempConnector.value = null;
+  }
+  
+  // 绘制新连接线
+  if (layer.value) {
+    const newLine = new Konva.Line({
+      points: [connector.fromX, connector.fromY, connector.toX, connector.toY],
+      stroke: connector.stroke,
+      strokeWidth: connector.strokeWidth,
+      id: connector.id,
+      dash: connector.lineDash,
+    });
+    
+    // 如果需要箭头
+    if (connector.arrow) {
+      newLine.setAttr('pointerLength', 10);
+      newLine.setAttr('pointerWidth', 10);
+      newLine.setAttr('pointerAtBeginning', false);
+      newLine.setAttr('pointerAtEnding', true);
+    }
+    
+    layer.value.getStage().findOne('Layer').add(newLine);
+    layer.value.getStage().batchDraw();
+  }
+  
+  // 重置连接线起点，准备下一条连接线
+  connectorStartPoint.value = null;
 };
 
 // 缩放功能
@@ -488,12 +813,24 @@ const resetZoom = () => {
 const basicComponents = ref<Component[]>([
   {
     id: 'rect',
+    name: '正方形',
+    type: 'rect',
+    icon: 'RectIcon',
+    defaultProps: {
+      width: 80,
+      height: 80,
+      fill: '#3B82F6',
+      stroke: '#1D4ED8',
+    },
+  },
+  {
+    id: 'rectangle',
     name: '矩形',
     type: 'rect',
-    icon: 'RectIcon', // 这里应该是一个实际的组件
+    icon: 'RectIcon',
     defaultProps: {
-      width: 100,
-      height: 100,
+      width: 120,
+      height: 80,
       fill: '#3B82F6',
       stroke: '#1D4ED8',
     },
@@ -502,7 +839,7 @@ const basicComponents = ref<Component[]>([
     id: 'circle',
     name: '圆形',
     type: 'circle',
-    icon: 'CircleIcon', // 这里应该是一个实际的组件
+    icon: 'CircleIcon',
     defaultProps: {
       radius: 50,
       fill: '#10B981',
@@ -510,10 +847,153 @@ const basicComponents = ref<Component[]>([
     },
   },
   {
+    id: 'triangle',
+    name: '三角形',
+    type: 'polygon',
+    icon: 'TriangleIcon',
+    defaultProps: {
+      points: [0, -50, 50, 50, -50, 50],
+      fill: '#F59E0B',
+      stroke: '#D97706',
+    },
+  },
+  {
+    id: 'diamond',
+    name: '菱形',
+    type: 'polygon',
+    icon: 'DiamondIcon',
+    defaultProps: {
+      points: [0, -50, 50, 0, 0, 50, -50, 0],
+      fill: '#8B5CF6',
+      stroke: '#7C3AED',
+    },
+  },
+  {
+    id: 'pentagon',
+    name: '五边形',
+    type: 'polygon',
+    icon: 'PentagonIcon',
+    defaultProps: {
+      points: [0, -50, 47, -15, 30, 40, -30, 40, -47, -15],
+      fill: '#EC4899',
+      stroke: '#DB2777',
+    },
+  },
+  {
+    id: 'hexagon',
+    name: '六边形',
+    type: 'polygon',
+    icon: 'HexagonIcon',
+    defaultProps: {
+      points: [30, -50, 60, 0, 30, 50, -30, 50, -60, 0, -30, -50],
+      fill: '#06B6D4',
+      stroke: '#0891B2',
+    },
+  },
+  {
+    id: 'star',
+    name: '五角星',
+    type: 'polygon',
+    icon: 'StarIcon',
+    defaultProps: {
+      points: [0, -50, 15, -15, 50, -15, 25, 10, 35, 50, 0, 25, -35, 50, -25, 10, -50, -15, -15, -15],
+      fill: '#F59E0B',
+      stroke: '#D97706',
+    },
+  },
+  {
+    id: 'leftArrow',
+    name: '左箭头',
+    type: 'polygon',
+    icon: 'LeftArrowIcon',
+    defaultProps: {
+      points: [-50, 0, 0, 30, 0, 15, 50, 15, 50, -15, 0, -15, 0, -30],
+      fill: '#EF4444',
+      stroke: '#DC2626',
+    },
+  },
+  {
+    id: 'rightArrow',
+    name: '右箭头',
+    type: 'polygon',
+    icon: 'RightArrowIcon',
+    defaultProps: {
+      points: [50, 0, 0, -30, 0, -15, -50, -15, -50, 15, 0, 15, 0, 30],
+      fill: '#EF4444',
+      stroke: '#DC2626',
+    },
+  },
+  {
+    id: 'doubleArrow',
+    name: '双向箭头',
+    type: 'polygon',
+    icon: 'DoubleArrowIcon',
+    defaultProps: {
+      points: [50, 0, 30, -20, 30, -10, -30, -10, -30, -20, -50, 0, -30, 20, -30, 10, 30, 10, 30, 20],
+      fill: '#EF4444',
+      stroke: '#DC2626',
+    },
+  },
+  {
+    id: 'cloud',
+    name: '云',
+    type: 'path',
+    icon: 'CloudIcon',
+    defaultProps: {
+      data: 'M 25,60 C 25,49.5 33,44 44,44 C 44,35 57.5,25.5 70,33 C 76,23.5 90,23.5 97,32 C 106,23 119,29.5 119.5,40 C 129,42.5 133.5,52.5 129,60 Z',
+      fill: '#60A5FA',
+      stroke: '#3B82F6',
+    },
+  },
+  {
+    id: 'speechBubble',
+    name: '消息框',
+    type: 'path',
+    icon: 'SpeechBubbleIcon',
+    defaultProps: {
+      data: 'M 10,10 H 120 V 80 H 70 L 50,100 L 30,80 H 10 Z',
+      fill: '#9CA3AF',
+      stroke: '#6B7280',
+    },
+  },
+  {
+    id: 'document',
+    name: '文件',
+    type: 'path',
+    icon: 'DocumentIcon',
+    defaultProps: {
+      data: 'M 20,10 H 80 L 100,30 V 110 H 20 Z M 80,10 V 30 H 100',
+      fill: '#F3F4F6',
+      stroke: '#9CA3AF',
+    },
+  },
+  {
+    id: 'cube',
+    name: '立方体',
+    type: 'path',
+    icon: 'CubeIcon',
+    defaultProps: {
+      data: 'M 30,30 L 90,10 L 110,70 L 50,90 Z M 90,10 L 90,70 L 110,70 M 90,70 L 30,90 L 30,30',
+      fill: '#8B5CF6',
+      stroke: '#7C3AED',
+    },
+  },
+  {
+    id: 'person',
+    name: '人物',
+    type: 'path',
+    icon: 'PersonIcon',
+    defaultProps: {
+      data: 'M 60,20 A 10,10 0 1 1 60,40 A 10,10 0 1 1 60,20 Z M 40,50 H 80 L 90,100 H 80 L 70,60 L 60,100 L 50,60 L 40,100 H 30 Z',
+      fill: '#F3F4F6',
+      stroke: '#9CA3AF',
+    },
+  },
+  {
     id: 'text',
     name: '文本',
     type: 'text',
-    icon: 'TextIcon', // 这里应该是一个实际的组件
+    icon: 'TextIcon',
     defaultProps: {
       text: '文本',
       fontSize: 16,
@@ -633,52 +1113,123 @@ const initComponents = () => {
 
 // 元素拖拽开始
 const onDragStart = (e: DragEvent, comp: any) => {
-  console.log('拖拽开始，组件:', comp.name, '类型:', comp.type);
+  console.log('拖拽开始，组件:', comp.name);
   
   // 设置拖拽效果
   if (e.dataTransfer) {
     e.dataTransfer.effectAllowed = 'copy';
     
+    // 创建自定义拖拽图像以提高用户体验
+    if (comp.data?.image || comp.image) {
+      const img = new Image();
+      img.src = comp.data?.image || comp.image;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 80;
+        canvas.height = 80;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, 80, 80);
+          ctx.globalAlpha = 0.7; // 半透明效果
+          e.dataTransfer?.setDragImage(canvas, 40, 40);
+        }
+      };
+    } else {
+      // 为基础图形创建拖拽图像
+      const canvas = document.createElement('canvas');
+      canvas.width = 80;
+      canvas.height = 80;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = 'rgba(59, 130, 246, 0.5)';
+        ctx.strokeStyle = '#3B82F6';
+        ctx.lineWidth = 2;
+        
+        if (comp.type === 'rect') {
+          ctx.fillRect(10, 10, 60, 60);
+          ctx.strokeRect(10, 10, 60, 60);
+        } else if (comp.type === 'circle') {
+          ctx.beginPath();
+          ctx.arc(40, 40, 30, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        } else if (comp.type === 'polygon' && comp.id === 'triangle') {
+          ctx.beginPath();
+          ctx.moveTo(40, 10);
+          ctx.lineTo(70, 70);
+          ctx.lineTo(10, 70);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+        
+        e.dataTransfer?.setDragImage(canvas, 40, 40);
+      }
+    }
+    
     try {
-      // 序列化组件数据
-      const compData = comp.data || {
-        name: comp.name,
-        width: comp.width,
-        height: comp.height
+      // 序列化组件数据 - 使用与Meta2d兼容的方式
+      const compData = {
+        id: uuidv4(),
+        type: comp.type || (comp.data?.rect ? 'rect' : comp.data?.ellipse ? 'circle' : 'image'),
+        name: comp.name || '组件',
+        width: comp.width || comp.data?.width || comp.defaultProps?.width || 100,
+        height: comp.height || comp.data?.height || comp.defaultProps?.height || 100,
+        image: comp.data?.image || comp.image,
+        data: comp.data || {},
+        defaultProps: comp.defaultProps || {}
       };
       
       const compStr = JSON.stringify(compData);
       console.log('序列化组件数据:', compStr);
+      
+      // 设置两种数据格式，确保兼容性
       e.dataTransfer.setData('application/json', compStr);
+      e.dataTransfer.setData('Meta2d', compStr);
+      e.dataTransfer.setData('text/plain', compStr); // 兼容某些浏览器
+      
+      // 设置一个样式类标识拖拽状态
+      document.body.classList.add('dragging');
     } catch (error) {
       console.error('设置拖拽数据失败:', error);
     }
   }
 };
 
-// 组件点击添加
-const onComponentClick = (comp: any) => {
-  console.log('组件点击:', comp.name);
-  
-  // 支持单击添加元素
-  const centerX = (stageConfig.width / 2);
-  const centerY = (stageConfig.height / 2);
-  
-  addElement(comp, centerX, centerY);
-};
-
 // 处理组件拖放到画布
 const onDrop = (e: any) => {
   e.preventDefault();
-  const event = e.evt as DragEvent;
+  document.body.classList.remove('dragging');
+  if (canvasContainer.value) {
+    canvasContainer.value.classList.remove('drag-over');
+  }
+  
+  // 直接从事件对象获取dataTransfer
+  const dataTransfer = e.evt?.dataTransfer || e.dataTransfer;
+  if (!dataTransfer) {
+    console.error('无法获取dataTransfer对象');
+    return;
+  }
+  
   let componentData = '';
   
-  // 尝试获取JSON数据
+  // 首先尝试Meta2d格式数据，这样可以兼容Meta2dEditor
   try {
-    componentData = event.dataTransfer?.getData('application/json') || '';
+    componentData = dataTransfer.getData('Meta2d') || '';
+    console.log('Meta2d数据:', componentData);
   } catch (error) {
-    console.error('读取拖拽数据失败:', error);
-    return;
+    console.warn('没有Meta2d格式数据');
+  }
+  
+  // 如果没有Meta2d格式，尝试获取JSON格式
+  if (!componentData) {
+    try {
+      componentData = dataTransfer.getData('application/json') || '';
+      console.log('JSON数据:', componentData);
+    } catch (error) {
+      console.error('读取拖拽数据失败:', error);
+      return;
+    }
   }
   
   if (!componentData) {
@@ -694,36 +1245,167 @@ const onDrop = (e: any) => {
     return;
   }
   
-  const stage = e.target.getStage();
-  const pointerPosition = stage.getPointerPosition();
-  const stagePos = stage.position();
+  if (!component) {
+    console.warn('无效的组件数据');
+    return;
+  }
   
-  // 计算相对于画布的实际位置
-  const x = (pointerPosition.x - stagePos.x) / stage.scaleX();
-  const y = (pointerPosition.y - stagePos.y) / stage.scaleY();
+  // 确保stage是有效的
+  const stageInstance = e.target ? e.target.getStage() : (e.currentTarget ? e.currentTarget.getStage() : null);
+  if (!stageInstance) {
+    console.error('无法获取舞台实例');
+    return;
+  }
   
-  // 直接使用组件数据
-  addElement({
-    name: component.name || "组件", 
-    data: component
-  }, x, y);
+  // 获取鼠标位置 - 处理不同的事件对象格式
+  let pointerPosition;
+  if (e.evt) {
+    // Vue-Konva事件格式
+    pointerPosition = stageInstance.getPointerPosition();
+  } else {
+    // 原生事件格式
+    const rect = stageInstance.container().getBoundingClientRect();
+    pointerPosition = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    };
+  }
+  
+  if (!pointerPosition) {
+    console.warn('无法获取鼠标位置');
+    return;
+  }
+  
+  // 获取当前舞台的位置和缩放
+  const stagePos = stageInstance.position();
+  const stageScale = scale.value;
+  
+  // 关键修复：正确计算相对于画布的实际位置，考虑缩放和平移
+  const x = (pointerPosition.x - stagePos.x) / stageScale;
+  const y = (pointerPosition.y - stagePos.y) / stageScale;
+  
+  // 网格对齐，有助于元素更精确放置
+  const gridSize = 10;
+  const alignedX = Math.round(x / gridSize) * gridSize;
+  const alignedY = Math.round(y / gridSize) * gridSize;
+  
+  console.log(`放置元素 - 原始坐标:(${x}, ${y}), 对齐后:(${alignedX}, ${alignedY})`);
+  
+  // 添加元素到舞台
+  const addedElement = addElement(component, alignedX, alignedY);
+  
+  // 确保添加后立即渲染更新舞台
+  if (stageInstance) {
+    stageInstance.batchDraw();
+  }
+  
+  // 显示添加成功的视觉反馈
+  showDropFeedback(alignedX, alignedY);
+  
+  return addedElement;
 };
 
-// 添加元素到画布
-const addElement = async (component: Component, x: number, y: number) => {
-  const id = uuidv4();
+// 显示拖放反馈效果
+const showDropFeedback = (x: number, y: number) => {
+  if (!stage.value) return;
   
-  // 从组件中提取属性
+  const feedbackLayer = new Konva.Layer();
+  const circle = new Konva.Circle({
+    x: x,
+    y: y,
+    radius: 30,
+    fill: 'rgba(0, 160, 255, 0.3)',
+    stroke: '#00a0ff',
+    strokeWidth: 2,
+    opacity: 0.8
+  });
+  
+  feedbackLayer.add(circle);
+  stage.value.getStage().add(feedbackLayer);
+  
+  // 动画效果
+  const anim = new Konva.Animation((frame: any) => {
+    if (!frame) return;
+    circle.radius(circle.radius() + frame.timeDiff * 0.1);
+    circle.opacity(circle.opacity() - frame.timeDiff * 0.001);
+    
+    if (circle.opacity() <= 0) {
+      anim.stop();
+      feedbackLayer.destroy();
+    }
+  }, feedbackLayer);
+  
+  anim.start();
+};
+
+// 组件点击添加
+const onComponentClick = (comp: any) => {
+  console.log('组件点击:', comp.name);
+  
+  // 支持单击添加元素
+  // 根据当前视口计算添加位置
+  let centerX = stageConfig.width / 2;
+  let centerY = stageConfig.height / 2;
+  
+  if (stage.value) {
+    const stageInstance = stage.value.getStage();
+    const viewportCenter = {
+      x: stageInstance.width() / 2,
+      y: stageInstance.height() / 2
+    };
+    
+    // 改进: 正确计算视口中心在画布中的位置，考虑缩放和平移
+    centerX = (viewportCenter.x - stageInstance.position().x) / scale.value;
+    centerY = (viewportCenter.y - stageInstance.position().y) / scale.value;
+    
+    // 网格对齐
+    const gridSize = 10;
+    centerX = Math.round(centerX / gridSize) * gridSize;
+    centerY = Math.round(centerY / gridSize) * gridSize;
+  }
+  
+  // 创建完整的组件数据
+  const componentData = {
+    id: uuidv4(),
+    type: comp.type || (comp.data?.rect ? 'rect' : comp.data?.ellipse ? 'circle' : 'image'),
+    name: comp.name || '组件',
+    width: comp.width || comp.data?.width || 100,
+    height: comp.height || comp.data?.height || 100,
+    image: comp.data?.image || comp.image,
+    data: comp.data || {},
+    defaultProps: comp.defaultProps || {}
+  };
+  
+  // 添加元素并确保渲染更新
+  const addedElement = addElement(componentData, centerX, centerY);
+  nextTick(() => {
+    if (stage.value) {
+      const stageInstance = stage.value.getStage();
+      stageInstance.batchDraw();
+    }
+  });
+  
+  // 显示添加成功的视觉反馈
+  showDropFeedback(centerX, centerY);
+};
+
+// 添加元素到画布 - 修复元素定位问题
+const addElement = async (component: any, x: number, y: number) => {
+  // 如果已经有ID则使用，否则生成新ID
+  const id = component.id || uuidv4();
+  
+  // 确定组件类型
   const compData = component.data || {};
-  const compType = compData.rect ? 'rect' : 
-                  compData.ellipse ? 'circle' : 
-                  compData.image ? 'image' : 
-                  component.type || 'rect';
+  const defaultProps = component.defaultProps || {};
+  const compType = component.type || 
+                 (compData.rect ? 'rect' : 
+                 compData.ellipse ? 'circle' : 
+                 compData.image ? 'image' : 'rect');
                   
   // 默认属性
-  const defaultWidth = compData.width || component.width || 100;
-  const defaultHeight = compData.height || component.height || 100;
-  const defaultName = compData.name || component.name || 'Element';
+  const defaultWidth = component.width || compData.width || defaultProps.width || 100;
+  const defaultHeight = component.height || compData.height || defaultProps.height || 100;
+  const defaultName = component.name || compData.name || 'Element';
   
   // 创建基本元素
   let element: any = {
@@ -736,30 +1418,67 @@ const addElement = async (component: Component, x: number, y: number) => {
     height: defaultHeight,
     dataSource: '',
     dataPoint: '',
+    rotation: 0,
   };
   
   // 根据类型设置特定属性
   if (compType === 'rect') {
     element = {
       ...element,
-      fill: compData.rect?.fill || '#3B82F6',
-      stroke: compData.rect?.stroke || '#1D4ED8',
-      strokeWidth: compData.rect?.strokeWidth || 1,
+      fill: compData.rect?.fill || defaultProps.fill || '#3B82F6',
+      stroke: compData.rect?.stroke || defaultProps.stroke || '#1D4ED8',
+      strokeWidth: compData.rect?.strokeWidth || defaultProps.strokeWidth || 1,
+      cornerRadius: compData.rect?.cornerRadius || defaultProps.cornerRadius || 0,
+      opacity: 1,
     };
   } else if (compType === 'circle') {
     element = {
       ...element,
-      radius: compData.width ? compData.width / 2 : 50,
-      fill: compData.ellipse?.fill || '#10B981',
-      stroke: compData.ellipse?.stroke || '#059669',
-      strokeWidth: compData.ellipse?.strokeWidth || 1,
+      radius: defaultProps.radius || compData.width ? compData.width / 2 : 50,
+      fill: compData.ellipse?.fill || defaultProps.fill || '#10B981',
+      stroke: compData.ellipse?.stroke || defaultProps.stroke || '#059669',
+      strokeWidth: compData.ellipse?.strokeWidth || defaultProps.strokeWidth || 1,
+      opacity: 1,
+    };
+  } else if (compType === 'polygon') {
+    element = {
+      ...element,
+      points: defaultProps.points || [],
+      fill: defaultProps.fill || '#8B5CF6',
+      stroke: defaultProps.stroke || '#7C3AED',
+      strokeWidth: defaultProps.strokeWidth || 1,
+      opacity: 1,
+    };
+  } else if (compType === 'path') {
+    element = {
+      ...element,
+      data: defaultProps.data || '',
+      fill: defaultProps.fill || '#60A5FA',
+      stroke: defaultProps.stroke || '#3B82F6',
+      strokeWidth: defaultProps.strokeWidth || 1,
+      opacity: 1,
     };
   } else if (compType === 'image') {
     const imageUrl = compData.image || component.image;
     if (imageUrl) {
-      await loadImage(id, imageUrl);
-      element.imageUrl = imageUrl;
+      try {
+        await loadImage(id, imageUrl);
+        element.imageUrl = imageUrl;
+      } catch (error) {
+        console.error('加载图像失败:', error);
+      }
     }
+  } else if (compType === 'text') {
+    element = {
+      ...element,
+      text: defaultProps.text || 'Text',
+      fontSize: defaultProps.fontSize || 16,
+      fontFamily: defaultProps.fontFamily || 'Arial',
+      fill: defaultProps.fill || '#FFFFFF',
+      align: defaultProps.align || 'center',
+      padding: defaultProps.padding || 5,
+      opacity: 1,
+    };
   }
   
   console.log('添加元素:', element);
@@ -767,6 +1486,15 @@ const addElement = async (component: Component, x: number, y: number) => {
   
   // 选择新添加的元素
   selectedElement.value = elements.value.length - 1;
+  
+  // 通知用户界面更新
+  nextTick(() => {
+    if (stage.value) {
+      stage.value.getStage().batchDraw();
+    }
+  });
+  
+  return element;
 };
 
 // 加载图像
@@ -784,8 +1512,63 @@ const loadImage = (id: string, url: string): Promise<void> => {
 // 处理元素拖动结束
 const handleDragEnd = (e: any, index: number) => {
   const node = e.target;
-  elements.value[index].x = node.x();
-  elements.value[index].y = node.y();
+  
+  // 获取元素的新位置
+  const newX = node.x();
+  const newY = node.y();
+  
+  // 网格对齐
+  const gridSize = 10;
+  const alignedX = Math.round(newX / gridSize) * gridSize;
+  const alignedY = Math.round(newY / gridSize) * gridSize;
+  
+  // 更新元素位置并确保其固定在画布上
+  elements.value[index].x = alignedX;
+  elements.value[index].y = alignedY;
+  
+  // 设置节点位置，确保节点位置和数据保持一致
+  node.position({
+    x: alignedX,
+    y: alignedY
+  });
+  
+  // 确保舞台重新渲染
+  if (stage.value) {
+    stage.value.getStage().batchDraw();
+  }
+  
+  console.log(`元素 ${elements.value[index].name} 已固定在位置 (${alignedX}, ${alignedY})`);
+};
+
+// 选择元素
+const selectElement = (index: number) => {
+  selectedElement.value = index;
+  
+  // 使用 nextTick 确保 DOM 已更新
+  nextTick(() => {
+    if (stage.value && layer.value) {
+      const transformers = layer.value.getStage().find('Transformer');
+      if (transformers.length > 0) {
+        const transformer = transformers[0];
+        const node = stage.value.getStage().findOne(`#${elements.value[index].id}`);
+        if (node) {
+          // 配置transformer的外观
+          transformer.anchorStroke('#00a0ff');
+          transformer.anchorFill('#0a1122');
+          transformer.anchorSize(8);
+          transformer.borderStroke('#00a0ff');
+          transformer.borderWidth(1);
+          transformer.enabledAnchors(['top-left', 'top-right', 'bottom-left', 'bottom-right']);
+          transformer.rotateEnabled(true);
+          
+          // 设置要变换的节点
+          transformer.nodes([node]);
+          transformer.moveToTop();
+          layer.value.getStage().batchDraw();
+        }
+      }
+    }
+  });
 };
 
 // 处理元素变换
@@ -793,6 +1576,7 @@ const handleTransform = (e: any, index: number) => {
   const node = e.target;
   const scaleX = node.scaleX();
   const scaleY = node.scaleY();
+  const rotation = node.rotation();
   
   // 重置缩放，应用新的宽高
   node.scaleX(1);
@@ -803,15 +1587,57 @@ const handleTransform = (e: any, index: number) => {
   if (element.type === 'rect' || element.type === 'image') {
     element.width = Math.max(5, node.width() * scaleX);
     element.height = Math.max(5, node.height() * scaleY);
+    element.rotation = rotation; // 保存旋转角度
   } else if (element.type === 'circle') {
     // 对于圆形，我们取两个缩放的平均值来缩放半径
     const avgScale = (scaleX + scaleY) / 2;
     element.radius = Math.max(5, element.radius * avgScale);
+    element.rotation = rotation; // 保存旋转角度
+  } else if (element.type === 'polygon') {
+    // 对于多边形，我们需要缩放每个点
+    if (element.points && Array.isArray(element.points)) {
+      const newPoints = [];
+      for (let i = 0; i < element.points.length; i += 2) {
+        const x = element.points[i] * scaleX;
+        const y = element.points[i + 1] * scaleY;
+        newPoints.push(x, y);
+      }
+      element.points = newPoints;
+    }
+    element.rotation = rotation;
+  } else if (element.type === 'path') {
+    // 路径形状需要特殊处理，通过宽高比例缩放
+    element.width = Math.max(5, node.width() * scaleX);
+    element.height = Math.max(5, node.height() * scaleY);
+    element.scaleX = scaleX;
+    element.scaleY = scaleY;
+    element.rotation = rotation;
+  } else if (element.type === 'text') {
+    element.width = Math.max(5, node.width() * scaleX);
+    element.height = Math.max(5, node.height() * scaleY);
+    element.fontSize = Math.max(8, element.fontSize * Math.min(scaleX, scaleY));
+    element.rotation = rotation;
   }
   
+  // 网格对齐
+  const gridSize = 10;
+  const alignedX = Math.round(node.x() / gridSize) * gridSize;
+  const alignedY = Math.round(node.y() / gridSize) * gridSize;
+  
   // 更新位置
-  element.x = node.x();
-  element.y = node.y();
+  element.x = alignedX;
+  element.y = alignedY;
+  
+  // 设置节点位置，确保节点位置和数据保持一致
+  node.position({
+    x: alignedX,
+    y: alignedY
+  });
+  
+  // 确保舞台重新渲染
+  if (stage.value) {
+    stage.value.getStage().batchDraw();
+  }
 };
 
 // 处理画布点击
@@ -820,11 +1646,6 @@ const onCanvasClick = (e: any) => {
   if (e.target === e.target.getStage()) {
     selectedElement.value = null;
   }
-};
-
-// 选择元素
-const selectElement = (index: number) => {
-  selectedElement.value = index;
 };
 
 // 删除元素
@@ -839,10 +1660,13 @@ const deleteElement = () => {
 const saveScene = () => {
   const scene = {
     elements: elements.value,
+    connectors: connectors.value,
     stageConfig: {
       width: stageConfig.width,
       height: stageConfig.height,
-    }
+    },
+    version: '1.0.0',
+    timestamp: new Date().toISOString()
   };
   
   localStorage.setItem('thingTwinScene', JSON.stringify(scene));
@@ -866,8 +1690,18 @@ const loadScene = async () => {
       stageConfig.height = scene.stageConfig.height;
     }
     
-    // 清除当前元素
+    // 清除当前元素和连接线
     elements.value = [];
+    connectors.value = [];
+    
+    // 清除Konva上现有的所有连接线
+    if (layer.value) {
+      layer.value.getStage().find('Line').forEach((line: any) => {
+        if (line.id() !== 'tempConnector') {
+          line.destroy();
+        }
+      });
+    }
     
     // 加载图像
     for (const element of scene.elements) {
@@ -878,6 +1712,38 @@ const loadScene = async () => {
     
     // 添加元素
     elements.value = scene.elements;
+    
+    // 添加连接线
+    if (scene.connectors && Array.isArray(scene.connectors)) {
+      connectors.value = scene.connectors;
+      
+      // 重建连接线视图
+      nextTick(() => {
+        if (layer.value) {
+          connectors.value.forEach(connector => {
+            const newLine = new Konva.Line({
+              points: [connector.fromX, connector.fromY, connector.toX, connector.toY],
+              stroke: connector.stroke || '#00a0ff',
+              strokeWidth: connector.strokeWidth || 2,
+              id: connector.id,
+              dash: connector.lineDash || [0, 0],
+            });
+            
+            // 如果需要箭头
+            if (connector.arrow) {
+              newLine.setAttr('pointerLength', 10);
+              newLine.setAttr('pointerWidth', 10);
+              newLine.setAttr('pointerAtBeginning', false);
+              newLine.setAttr('pointerAtEnding', true);
+            }
+            
+            layer.value.getStage().findOne('Layer').add(newLine);
+          });
+          
+          layer.value.getStage().batchDraw();
+        }
+      });
+    }
     
     // 取消选择
     selectedElement.value = null;
@@ -890,7 +1756,21 @@ const loadScene = async () => {
 // 清空场景
 const clearScene = () => {
   if (confirm('确定要清空当前场景吗？这个操作无法撤销。')) {
+    // 清除元素和连接线
     elements.value = [];
+    connectors.value = [];
+    
+    // 清除Konva上的连接线
+    if (layer.value) {
+      layer.value.getStage().find('Line').forEach((line: any) => {
+        if (line.id() !== 'tempConnector') {
+          line.destroy();
+        }
+      });
+      layer.value.getStage().batchDraw();
+    }
+    
+    // 取消选择
     selectedElement.value = null;
   }
 };
@@ -942,6 +1822,319 @@ watch(selectedElement, (newVal) => {
     }
   }
 });
+
+// 导出场景为JSON文件
+const exportToJSON = () => {
+  const scene = {
+    elements: elements.value,
+    connectors: connectors.value,
+    stageConfig: {
+      width: stageConfig.width,
+      height: stageConfig.height,
+    },
+    version: '1.0.0',
+    timestamp: new Date().toISOString()
+  };
+  
+  // 创建Blob对象
+  const json = JSON.stringify(scene, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  
+  // 创建下载链接
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `thingtwin_scene_${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  
+  // 清理
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 0);
+};
+
+// 触发文件输入框点击
+const jsonFileInput = ref<HTMLInputElement | null>(null);
+const triggerImportJSON = () => {
+  if (jsonFileInput.value) {
+    jsonFileInput.value.click();
+  }
+};
+
+// 从JSON文件导入场景
+const importFromJSON = async (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  if (!input.files || input.files.length === 0) return;
+  
+  const file = input.files[0];
+  const reader = new FileReader();
+  
+  reader.onload = async (e) => {
+    try {
+      const content = e.target?.result as string;
+      const scene = JSON.parse(content);
+      
+      if (!scene.elements || !Array.isArray(scene.elements)) {
+        throw new Error('无效的场景数据: 缺少元素数组');
+      }
+      
+      // 更新舞台配置
+      if (scene.stageConfig) {
+        stageConfig.width = scene.stageConfig.width;
+        stageConfig.height = scene.stageConfig.height;
+      }
+      
+      // 清除当前元素和连接线
+      elements.value = [];
+      connectors.value = [];
+      
+      // 清除Konva上现有的所有连接线
+      if (layer.value) {
+        layer.value.getStage().find('Line').forEach((line: any) => {
+          if (line.id() !== 'tempConnector') {
+            line.destroy();
+          }
+        });
+      }
+      
+      // 加载图像
+      for (const element of scene.elements) {
+        if (element.type === 'image' && element.imageUrl) {
+          await loadImage(element.id, element.imageUrl);
+        }
+      }
+      
+      // 添加元素
+      elements.value = scene.elements;
+      
+      // 添加连接线
+      if (scene.connectors && Array.isArray(scene.connectors)) {
+        connectors.value = scene.connectors;
+        
+        // 重建连接线视图
+        nextTick(() => {
+          if (layer.value) {
+            connectors.value.forEach(connector => {
+              const newLine = new Konva.Line({
+                points: [connector.fromX, connector.fromY, connector.toX, connector.toY],
+                stroke: connector.stroke || '#00a0ff',
+                strokeWidth: connector.strokeWidth || 2,
+                id: connector.id,
+                dash: connector.lineDash || [0, 0],
+              });
+              
+              // 如果需要箭头
+              if (connector.arrow) {
+                newLine.setAttr('pointerLength', 10);
+                newLine.setAttr('pointerWidth', 10);
+                newLine.setAttr('pointerAtBeginning', false);
+                newLine.setAttr('pointerAtEnding', true);
+              }
+              
+              layer.value.getStage().findOne('Layer').add(newLine);
+            });
+            
+            layer.value.getStage().batchDraw();
+          }
+        });
+      }
+      
+      // 取消选择
+      selectedElement.value = null;
+      
+      // 保存到本地存储
+      localStorage.setItem('thingTwinScene', JSON.stringify(scene));
+      
+      alert('场景导入成功');
+    } catch (error) {
+      console.error('导入场景失败:', error);
+      alert(`导入场景失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    }
+    
+    // 重置文件输入以允许再次选择同一文件
+    if (jsonFileInput.value) {
+      jsonFileInput.value.value = '';
+    }
+  };
+  
+  reader.readAsText(file);
+};
+
+// 添加图标组件定义 - 全局注册这些组件
+const RectIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('rect', { x: 2, y: 2, width: 20, height: 20, fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const CircleIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('circle', { cx: 12, cy: 12, r: 10, fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const TriangleIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('polygon', { points: '12,2 22,22 2,22', fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const DiamondIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('polygon', { points: '12,2 22,12 12,22 2,12', fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const PentagonIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('polygon', { points: '12,2 22,8.5 19,18 5,18 2,8.5', fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const HexagonIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('polygon', { points: '7,2 17,2 22,12 17,22 7,22 2,12', fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const StarIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('polygon', { points: '12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9', fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const LeftArrowIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('polygon', { points: '2,12 10,4 10,8 22,8 22,16 10,16 10,20', fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const RightArrowIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('polygon', { points: '22,12 14,4 14,8 2,8 2,16 14,16 14,20', fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const DoubleArrowIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('polygon', { points: '2,12 6,8 6,10 18,10 18,8 22,12 18,16 18,14 6,14 6,16', fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const CloudIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('path', { d: 'M5,15c-1.1,0-2-0.9-2-2c0-1.1,0.9-2,2-2h1c0-2.2,1.8-4,4-4c1.5,0,2.9,0.9,3.6,2.2C14.1,8.4,14.9,8,15.8,8c1.5,0,2.7,1.2,2.7,2.7c0,0.3,0,0.5-0.1,0.8c0.6,0.5,1.1,1.2,1.1,2c0,1.4-1.1,2.5-2.5,2.5H5z', fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const SpeechBubbleIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('path', { d: 'M2,4h20v14h-10l-5,4v-4H2V4z', fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const DocumentIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('path', { d: 'M4,4h10l6,6v10H4V4z M14,4v6h6', fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const CubeIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('path', { d: 'M4,6l8-4l8,4v12l-8,4l-8-4V6z M4,6l8,4l8-4 M12,10v12', fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const PersonIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('circle', { cx: 12, cy: 7, r: 4, fill: 'currentColor', 'fill-opacity': 0.3, stroke: 'currentColor', 'stroke-width': 2 }),
+      h('path', { d: 'M4,20v-2c0-2.2,1.8-4,4-4h8c2.2,0,4,1.8,4,4v2', fill: 'none', stroke: 'currentColor', 'stroke-width': 2 })
+    ]);
+  }
+};
+
+const TextIcon = {
+  render() {
+    return h('svg', { viewBox: '0 0 24 24', class: 'w-6 h-6' }, [
+      h('text', { x: 12, y: 16, 'text-anchor': 'middle', 'font-size': 18, 'font-weight': 'bold', fill: 'currentColor' }, 'T')
+    ]);
+  }
+};
+
+// 图标组件映射表
+const iconComponents: Record<string, any> = {
+  RectIcon,
+  CircleIcon,
+  TriangleIcon,
+  DiamondIcon,
+  PentagonIcon,
+  HexagonIcon,
+  StarIcon,
+  LeftArrowIcon,
+  RightArrowIcon,
+  DoubleArrowIcon,
+  CloudIcon,
+  SpeechBubbleIcon,
+  DocumentIcon,
+  CubeIcon,
+  PersonIcon,
+  TextIcon
+};
+
+// 处理画布拖拽悬停
+const onCanvasDragOver = (e: DragEvent) => {
+  if (canvasContainer.value) {
+    canvasContainer.value.classList.add('drag-over');
+  }
+};
+
+// 处理离开画布区域
+const onCanvasDragLeave = (e: DragEvent) => {
+  // 检查是否真的离开了容器而不是进入了子元素
+  const rect = canvasContainer.value?.getBoundingClientRect();
+  if (rect) {
+    const { clientX, clientY } = e;
+    if (
+      clientX <= rect.left ||
+      clientX >= rect.right ||
+      clientY <= rect.top ||
+      clientY >= rect.bottom
+    ) {
+      canvasContainer.value?.classList.remove('drag-over');
+    }
+  }
+};
 </script>
 
 <style scoped>
@@ -959,6 +2152,43 @@ watch(selectedElement, (newVal) => {
   border-bottom: 1px solid rgba(0, 140, 255, 0.4);
   position: relative;
   overflow: hidden;
+}
+
+/* 拖拽相关样式 */
+.component-item {
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 10;
+}
+
+.component-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: rgba(30, 58, 138, 0.5);
+}
+
+.component-item:active {
+  transform: translateY(0);
+}
+
+/* 拖拽中状态 */
+body.dragging .component-panel {
+  border-color: rgba(0, 160, 255, 0.8);
+}
+
+body.dragging .canvas-container {
+  box-shadow: inset 0 0 30px rgba(0, 160, 255, 0.3);
+}
+
+/* 拖拽目标区域指示 */
+.v-stage:not(.dragging-over) {
+  transition: all 0.3s ease;
+}
+
+/* 强调拖拽放置区域 */
+.canvas-container.drag-over {
+  box-shadow: inset 0 0 40px rgba(0, 200, 255, 0.5);
+  border-color: rgba(0, 200, 255, 0.8);
 }
 
 /* 给标题添加科技感光效 */
@@ -1086,8 +2316,10 @@ watch(selectedElement, (newVal) => {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  background-image: radial-gradient(circle at 1px 1px, rgba(0, 140, 255, 0.1) 1px, transparent 0);
-  background-size: 30px 30px;
+  background-image: 
+    linear-gradient(rgba(0, 140, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 140, 255, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
   z-index: 1;
 }
 
@@ -1162,5 +2394,96 @@ watch(selectedElement, (newVal) => {
   color: #00e060;
 }
 
-/* 保留原有样式 */
+/* 组件面板样式 */
+.component-panel {
+  background-color: #0c1428;
+  border-right: 1px solid rgba(0, 140, 255, 0.3);
+}
+
+.tab {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab:hover {
+  color: #00c0ff;
+}
+
+.component {
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.component:hover {
+  background: rgba(0, 102, 204, 0.3);
+  border: 1px solid rgba(0, 140, 255, 0.5);
+  box-shadow: 0 0 10px rgba(0, 160, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.component-preview {
+  background: rgba(0, 51, 102, 0.3);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 140, 255, 0.3);
+}
+
+.preview-rect {
+  width: 30px;
+  height: 25px;
+  border-radius: 2px;
+}
+
+.preview-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+/* 属性面板样式 */
+.property-panel {
+  background-color: #0c1428;
+  border-left: 1px solid rgba(0, 140, 255, 0.3);
+}
+
+.input {
+  background-color: rgba(15, 30, 60, 0.7);
+  border: 1px solid rgba(0, 140, 255, 0.4);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  color: #e6f7ff;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.input:hover, .input:focus {
+  border-color: #00a0ff;
+  box-shadow: 0 0 8px rgba(0, 160, 255, 0.4);
+  outline: none;
+}
+
+/* 组件网格布局 */
+.components-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(10, 20, 40, 0.8);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 140, 255, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 160, 255, 0.7);
+}
 </style> 

@@ -1,8 +1,8 @@
 <template>
   <div class="editor-container">
     <div class="header-title">
-      <span class="highlight">污水处理系统</span>数字孪生平台
-      <div class="subtitle">Wastewater Treatment Digital Twin Platform</div>
+      <span class="highlight">组态设计</span>数字孪生平台
+      <div class="subtitle">Industrial Configuration & Digital Twin Platform</div>
       <div class="tech-line left"></div>
       <div class="tech-line right"></div>
     </div>
@@ -57,7 +57,7 @@
       <div class="component-panel w-48 bg-gray-800 overflow-y-auto">
         <!-- 组件库标签页 -->
         <div class="tabs flex text-center text-xs">
-          <div class="tab flex-1 py-2 border-b-2" :class="{'border-blue-500 text-blue-400': activeTab === 'water', 'border-transparent': activeTab !== 'water'}" @click="activeTab = 'water'">污水处理</div>
+          <div class="tab flex-1 py-2 border-b-2" :class="{'border-blue-500 text-blue-400': activeTab === 'water', 'border-transparent': activeTab !== 'water'}" @click="activeTab = 'water'">工业组件</div>
           <div class="tab flex-1 py-2 border-b-2" :class="{'border-blue-500 text-blue-400': activeTab === 'basic', 'border-transparent': activeTab !== 'basic'}" @click="activeTab = 'basic'">基础</div>
         </div>
         
@@ -74,7 +74,7 @@
           </div>
         </div>
         
-        <!-- 污水处理组件 -->
+        <!-- 工业组件 -->
         <div v-show="activeTab === 'water'" class="p-2">
           <div class="components-grid">
             <div 
@@ -123,12 +123,48 @@
                   <circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
                 </svg>
                 
+                <svg v-else-if="comp.type === 'triangle'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <polygon points="12,2 22,22 2,22" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
+                </svg>
+                
+                <svg v-else-if="comp.type === 'diamond'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <polygon points="12,2 22,12 12,22 2,12" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
+                </svg>
+                
+                <svg v-else-if="comp.type === 'pentagon'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <polygon points="12,2 22,9 19,20 5,20 2,9" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
+                </svg>
+                
+                <svg v-else-if="comp.type === 'hexagon'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <polygon points="7,2 17,2 22,12 17,22 7,22 2,12" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
+                </svg>
+                
+                <svg v-else-if="comp.type === 'star'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <polygon points="12,2 15,8 21,9 17,14 18,20 12,17 6,20 7,14 3,9 9,8" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
+                </svg>
+                
+                <svg v-else-if="comp.type === 'arrow' && comp.name === '右箭头'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <path d="M2,12 L14,12 L14,8 L22,12 L14,16 L14,12" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
+                </svg>
+                
+                <svg v-else-if="comp.type === 'arrow' && comp.name === '左箭头'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <path d="M22,12 L10,12 L10,8 L2,12 L10,16 L10,12" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
+                </svg>
+                
+                <svg v-else-if="comp.type === 'arrow' && comp.name === '双向箭头'" class="w-8 h-8" viewBox="0 0 24 24">
+                  <path d="M2,12 L8,8 L8,10 L16,10 L16,8 L22,12 L16,16 L16,14 L8,14 L8,16 L2,12" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
+                </svg>
+                
                 <svg v-else-if="comp.type === 'text'" class="w-8 h-8" viewBox="0 0 24 24">
                   <text x="12" y="16" text-anchor="middle" font-size="18" font-weight="bold" fill="currentColor">T</text>
                 </svg>
                 
                 <svg v-else-if="comp.type === 'line'" class="w-8 h-8" viewBox="0 0 24 24">
                   <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="3" />
+                </svg>
+                
+                <svg v-else class="w-8 h-8" viewBox="0 0 24 24">
+                  <rect x="2" y="2" width="20" height="20" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="2" />
                 </svg>
               </div>
               <span class="text-xs text-white text-center truncate w-full">{{ comp.name }}</span>
@@ -138,10 +174,10 @@
           <!-- 快速添加按钮 -->
           <div class="quick-tools mt-4 p-2 border-t border-gray-700">
             <button @click="addTestPump" class="btn w-full bg-blue-600 hover:bg-blue-500 text-white py-1 rounded text-xs mb-2">
-              <i class="fas fa-plus-circle mr-1"></i>添加泵
+              <i class="fas fa-plus-circle mr-1"></i>添加设备
             </button>
             <button @click="addTestRect" class="btn w-full bg-green-600 hover:bg-green-500 text-white py-1 rounded text-xs">
-              <i class="fas fa-plus-circle mr-1"></i>添加储罐
+              <i class="fas fa-plus-circle mr-1"></i>添加容器
             </button>
           </div>
         </div>
@@ -172,24 +208,24 @@
         <!-- 实时数据指标卡 -->
         <div class="data-metrics">
           <div class="metrics-title-decoration"></div>
-          <div class="metrics-title">实时运行数据</div>
+          <div class="metrics-title">组件属性预览</div>
           <div class="metrics-container">
             <div class="metric-item">
-              <div class="metric-name">进水流量</div>
-              <div class="metric-value">{{ simulatedData.inletFlow }}<span class="unit">m³/h</span></div>
+              <div class="metric-name">设备状态</div>
+              <div class="metric-value">{{ simulatedData.inletFlow }}<span class="unit">%</span></div>
               <div class="metric-chart">
                 <div class="chart-bar" :style="{ width: `${simulatedData.inletFlowPercent}%` }"></div>
               </div>
             </div>
             <div class="metric-item">
-              <div class="metric-name">出水水质</div>
-              <div class="metric-value">{{ simulatedData.outletQuality }}<span class="unit">mg/L</span></div>
+              <div class="metric-name">运行参数</div>
+              <div class="metric-value">{{ simulatedData.outletQuality }}<span class="unit">单位</span></div>
               <div class="metric-chart">
                 <div class="chart-bar" :style="{ width: `${simulatedData.outletQualityPercent}%` }"></div>
               </div>
             </div>
             <div class="metric-item">
-              <div class="metric-name">曝气强度</div>
+              <div class="metric-name">负载率</div>
               <div class="metric-value">{{ simulatedData.aerationLevel }}<span class="unit">%</span></div>
               <div class="metric-chart">
                 <div class="chart-bar" :style="{ width: `${simulatedData.aerationLevel}%` }"></div>
@@ -361,17 +397,17 @@ const mouseY = ref(0);
 const activeTab = ref('water'); // 'water' 或 'basic'
 
 // meta2d实例
-let meta2d = null;
-const container = ref(null);
+let meta2d: any = null;
+const container = ref<HTMLElement | null>(null);
 const scale = ref(1);
 const activeTool = ref('');
 
 // 选中的元素
-const selectedNode = ref(null);
-const selectedLine = ref(null);
+const selectedNode = ref<any>(null);
+const selectedLine = ref<any>(null);
 
 // 设备列表
-const devices = ref([]);
+const devices = ref<any[]>([]);
 
 // 搜索功能
 const componentSearchQuery = ref('');
@@ -382,13 +418,13 @@ const filteredWaterComponents = computed(() => {
     return waterComponents.value;
   }
   const query = componentSearchQuery.value.toLowerCase();
-  return waterComponents.value.filter(comp => 
+  return waterComponents.value.filter((comp: any) => 
     comp.name.toLowerCase().includes(query)
   );
 });
 
 // 污水处理组件列表
-const waterComponents = ref([]);
+const waterComponents = ref<any[]>([]);
 
 // 模拟实时数据
 const simulatedData = reactive({
@@ -481,15 +517,34 @@ const initComponents = () => {
 const basicComponents = [
   {
     type: 'rect',
+    name: '正方形',
+    iconClass: 'bg-blue-800 text-blue-200',
+    width: 80,
+    height: 80,
+    data: {
+      name: 'square',
+      text: '',
+      width: 80,
+      height: 80,
+      borderRadius: 0,
+      rect: {
+        fill: 'rgba(59, 130, 246, 0.3)',
+        strokeWidth: 2,
+        stroke: '#3B82F6'
+      }
+    }
+  },
+  {
+    type: 'rect',
     name: '矩形',
     iconClass: 'bg-blue-800 text-blue-200',
     width: 100,
-    height: 80,
+    height: 60,
     data: {
-      name: 'rect',
+      name: 'rectangle',
       text: '',
       width: 100,
-      height: 80,
+      height: 60,
       borderRadius: 0,
       rect: {
         fill: 'rgba(59, 130, 246, 0.3)',
@@ -509,12 +564,207 @@ const basicComponents = [
       text: '',
       width: 80,
       height: 80,
-      borderRadius: 0.5,
       ellipse: {
         fill: 'rgba(16, 185, 129, 0.3)',
         strokeWidth: 2,
         stroke: '#10B981'
       }
+    }
+  },
+  {
+    type: 'triangle',
+    name: '三角形',
+    iconClass: 'bg-yellow-800 text-yellow-200',
+    width: 80,
+    height: 80,
+    data: {
+      name: 'triangle',
+      text: '',
+      width: 80,
+      height: 80,
+      points: [
+        {x: 40, y: 0},
+        {x: 0, y: 80},
+        {x: 80, y: 80}
+      ],
+      lineWidth: 2,
+      strokeStyle: '#D97706',
+      fillStyle: 'rgba(217, 119, 6, 0.3)'
+    }
+  },
+  {
+    type: 'diamond',
+    name: '菱形',
+    iconClass: 'bg-purple-800 text-purple-200',
+    width: 80,
+    height: 80,
+    data: {
+      name: 'diamond',
+      text: '',
+      width: 80,
+      height: 80,
+      points: [
+        {x: 40, y: 0},
+        {x: 80, y: 40},
+        {x: 40, y: 80},
+        {x: 0, y: 40}
+      ],
+      lineWidth: 2,
+      strokeStyle: '#8B5CF6',
+      fillStyle: 'rgba(139, 92, 246, 0.3)'
+    }
+  },
+  {
+    type: 'pentagon',
+    name: '五边形',
+    iconClass: 'bg-pink-800 text-pink-200',
+    width: 80,
+    height: 80,
+    data: {
+      name: 'pentagon',
+      text: '',
+      width: 80,
+      height: 80,
+      points: [
+        {x: 40, y: 0},
+        {x: 80, y: 30},
+        {x: 65, y: 80},
+        {x: 15, y: 80},
+        {x: 0, y: 30}
+      ],
+      lineWidth: 2,
+      strokeStyle: '#EC4899',
+      fillStyle: 'rgba(236, 72, 153, 0.3)'
+    }
+  },
+  {
+    type: 'hexagon',
+    name: '六边形',
+    iconClass: 'bg-indigo-800 text-indigo-200',
+    width: 80,
+    height: 70,
+    data: {
+      name: 'hexagon',
+      text: '',
+      width: 80,
+      height: 70,
+      points: [
+        {x: 20, y: 0},
+        {x: 60, y: 0},
+        {x: 80, y: 35},
+        {x: 60, y: 70},
+        {x: 20, y: 70},
+        {x: 0, y: 35}
+      ],
+      lineWidth: 2,
+      strokeStyle: '#6366F1',
+      fillStyle: 'rgba(99, 102, 241, 0.3)'
+    }
+  },
+  {
+    type: 'star',
+    name: '五角星',
+    iconClass: 'bg-amber-800 text-amber-200',
+    width: 80,
+    height: 80,
+    data: {
+      name: 'pentagram',
+      text: '',
+      width: 80,
+      height: 80,
+      points: [
+        {x: 40, y: 0},
+        {x: 50, y: 30},
+        {x: 80, y: 30},
+        {x: 55, y: 50},
+        {x: 65, y: 80},
+        {x: 40, y: 60},
+        {x: 15, y: 80},
+        {x: 25, y: 50},
+        {x: 0, y: 30},
+        {x: 30, y: 30}
+      ],
+      lineWidth: 2,
+      strokeStyle: '#D97706',
+      fillStyle: 'rgba(217, 119, 6, 0.3)'
+    }
+  },
+  {
+    type: 'arrow',
+    name: '右箭头',
+    iconClass: 'bg-red-800 text-red-200',
+    width: 100,
+    height: 60,
+    data: {
+      name: 'rightArrow',
+      text: '',
+      width: 100,
+      height: 60,
+      points: [
+        {x: 0, y: 20},
+        {x: 60, y: 20},
+        {x: 60, y: 0},
+        {x: 100, y: 30},
+        {x: 60, y: 60},
+        {x: 60, y: 40},
+        {x: 0, y: 40}
+      ],
+      lineWidth: 2,
+      strokeStyle: '#DC2626',
+      fillStyle: 'rgba(220, 38, 38, 0.3)'
+    }
+  },
+  {
+    type: 'arrow',
+    name: '左箭头',
+    iconClass: 'bg-red-800 text-red-200',
+    width: 100,
+    height: 60,
+    data: {
+      name: 'leftArrow',
+      text: '',
+      width: 100,
+      height: 60,
+      points: [
+        {x: 100, y: 20},
+        {x: 40, y: 20},
+        {x: 40, y: 0},
+        {x: 0, y: 30},
+        {x: 40, y: 60},
+        {x: 40, y: 40},
+        {x: 100, y: 40}
+      ],
+      lineWidth: 2,
+      strokeStyle: '#DC2626',
+      fillStyle: 'rgba(220, 38, 38, 0.3)'
+    }
+  },
+  {
+    type: 'arrow',
+    name: '双向箭头',
+    iconClass: 'bg-red-800 text-red-200',
+    width: 120,
+    height: 60,
+    data: {
+      name: 'twowayArrow',
+      text: '',
+      width: 120,
+      height: 60,
+      points: [
+        {x: 0, y: 30},
+        {x: 40, y: 0},
+        {x: 40, y: 20},
+        {x: 80, y: 20},
+        {x: 80, y: 0},
+        {x: 120, y: 30},
+        {x: 80, y: 60},
+        {x: 80, y: 40},
+        {x: 40, y: 40},
+        {x: 40, y: 60}
+      ],
+      lineWidth: 2,
+      strokeStyle: '#DC2626',
+      fillStyle: 'rgba(220, 38, 38, 0.3)'
     }
   },
   {
@@ -560,80 +810,105 @@ const deviceDataPoints = computed(() => {
 });
 
 // 更新鼠标移动处理
-const updateMousePosition = (e) => {
-  if (!container.value) return;
+const updateMousePosition = (e: MouseEvent) => {
+  if (!container.value || !meta2d) return;
+  
+  // 获取画布相对位置
   const rect = container.value.getBoundingClientRect();
-  mouseX.value = Math.round(e.clientX - rect.left);
-  mouseY.value = Math.round(e.clientY - rect.top);
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  
+  // 转换为画布坐标
+  const pos = meta2d.pointCanvasToWindow({
+    x: x,
+    y: y
+  });
+  
+  // 更新显示坐标
+  mouseX.value = Math.round(pos.x);
+  mouseY.value = Math.round(pos.y);
 };
 
 // 初始化编辑器
 onMounted(async () => {
   console.log('初始化Meta2d编辑器...');
   
-  // 注册污水处理组件图标
-  registerWastewaterIcons();
-  
-  // 初始化组件库
-  initComponents();
-  
-  // 初始化meta2d
-  meta2d = new Meta2d('meta2d');
-  console.log('Meta2d实例创建成功:', meta2d);
-  
-  // 注册事件
-  meta2d.on('active', onElementSelected);
-  meta2d.on('inactive', () => {
-    selectedNode.value = null;
-    selectedLine.value = null;
-  });
-  meta2d.on('scale', onScale);
-  console.log('Meta2d事件注册完成');
-  
-  // 添加鼠标移动监听
-  if (container.value) {
-    container.value.addEventListener('mousemove', updateMousePosition);
-  }
-  
-  // 初始化画布
-  initCanvas();
-  console.log('画布初始化完成');
-  
-  // 可以在这里注册库：
-  meta2d.register(wastewaterComponents());
-  
-  // 加载设备数据
-  await fetchDevices();
-  
-  // 从本地存储加载
-  loadFromStorage();
-  
-  // 测试添加一个元素
-  console.log('测试添加元素...');
-  setTimeout(() => {
-    console.log('尝试添加测试矩形');
-    try {
-      const node = meta2d.addNode({
-        name: '测试矩形',
-        x: 200,
-        y: 200,
-        width: 100,
-        height: 80,
-        rect: {
-          fill: 'rgba(255, 0, 0, 0.3)',
-          strokeWidth: 2,
-          stroke: '#ff0000'
-        }
-      });
-      console.log('测试矩形添加结果:', node);
-      meta2d.render();
-    } catch (error) {
-      console.error('添加测试元素失败:', error);
+  try {
+    // 注册污水处理组件图标
+    registerWastewaterIcons();
+    
+    // 初始化组件库
+    initComponents();
+    
+    // 创建meta2d实例 - 这是关键
+    meta2d = new Meta2d('meta2d');
+    
+    console.log('Meta2d实例创建成功');
+    
+    // 重要：确保canvas可拖拽
+    if (meta2d.canvas) {
+      meta2d.canvas.dragItems = true;
+      meta2d.canvas.hotkeyEnable = true;
     }
-  }, 2000);
-  
-  // 启动数据模拟
-  dataUpdateTimer = setInterval(updateSimulatedData, 3000);
+    
+    // 初始化画布 - 设置选项
+    initCanvas();
+    
+    // 注册事件处理
+    meta2d.on('active', onElementSelected);
+    meta2d.on('scale', onScale);
+    meta2d.on('inactive', onElementInactive);
+    meta2d.on('click', onClick);
+    
+    // 调试：监听移动事件
+    meta2d.on('move', (pens: any) => {
+      console.log('元素移动:', pens);
+    });
+    
+    // 注册形状库
+    meta2d.register(wastewaterComponents());
+    
+    // 重新强调元素可移动性
+    meta2d.setOptions({
+      movableNode: true,
+      disableTranslate: false,
+      dragOn: true,
+      locked: 0
+    });
+    
+    // 添加鼠标移动监听
+    if (container.value) {
+      container.value.addEventListener('mousemove', updateMousePosition);
+    }
+    
+    // 加载设备数据
+    await fetchDevices();
+    
+    // 从本地存储加载
+    loadFromStorage();
+    
+    // 启动数据模拟
+    dataUpdateTimer = setInterval(updateSimulatedData, 3000);
+    
+    // 添加键盘删除事件监听
+    document.addEventListener('keydown', handleKeyDown);
+    
+    // 尝试移动所有元素，确保它们可移动
+    setTimeout(() => {
+      const allPens = meta2d.getPens();
+      allPens.forEach(pen => {
+        meta2d.setPenProps(pen, {
+          locked: 0,
+          movable: true,
+          selectable: true
+        });
+      });
+      meta2d.render();
+      console.log('设置所有元素为可移动状态');
+    }, 1000);
+  } catch (error) {
+    console.error('Meta2d初始化失败:', error);
+  }
 });
 
 // 从本地存储加载
@@ -641,8 +916,37 @@ const loadFromStorage = () => {
   try {
     const savedData = localStorage.getItem('meta2d-wastewater');
     if (savedData) {
-      meta2d.open(JSON.parse(savedData));
+      const data = JSON.parse(savedData);
+      
+      // 确保所有线条都有可见的样式
+      if (data.pens) {
+        data.pens.forEach((pen: any) => {
+          // 检查是否为线条类型
+          if (pen.name === 'line' || pen.anchors || pen.from || pen.to) {
+            pen.strokeStyle = pen.strokeStyle || '#00a0ff';
+            pen.lineWidth = Math.max(pen.lineWidth || 0, 2);
+          }
+        });
+      }
+      
+      meta2d.open(data);
       console.log('从本地存储加载数据成功');
+      
+      // 重新渲染以确保连线和节点都显示
+      setTimeout(() => {
+        // 再次确保所有线条可见
+        meta2d.getAllLines().forEach((line: any) => {
+          if (!line.strokeStyle || line.strokeStyle === 'transparent') {
+            meta2d.updateLine({
+              id: line.id,
+              strokeStyle: '#00a0ff',
+              lineWidth: Math.max(line.lineWidth || 0, 2)
+            });
+          }
+        });
+        
+        meta2d.render();
+      }, 100);
     }
   } catch (error) {
     console.error('从本地存储加载数据失败:', error);
@@ -651,23 +955,140 @@ const loadFromStorage = () => {
 
 // 初始化画布
 const initCanvas = () => {
-  meta2d.setOptions({
-    grid: true,
-    gridColor: '#282828',
-    gridSize: 20,
-    rule: true,
-    ruleColor: '#888',
-    dragToPanning: false,
-    disableTranslate: false, 
-    disableScale: false,
-    disableRotate: false,
-    alwaysAnchor: false,
-    autoAnchor: true,
-    autoScrollByCursor: true,
-    scrolling: {
-      enable: true
+  try {
+    // 首先检查实例是否已创建
+    if (meta2d) {
+      console.log('当前meta2d实例：', meta2d);
+    } else {
+      console.error('meta2d实例未创建，请检查初始化');
+      return;
+    }
+    
+    // 尝试重新设置关键选项
+    meta2d.store.options = {
+      ...meta2d.store.options,
+      // 确保元素可以移动的关键设置
+      locked: 0,
+      dragOn: true,  // 确保可拖动
+      disableTranslate: false,
+      disableScale: false,
+      disableRotate: false,
+      dragToPanning: false,
+      movableLine: true,
+      movableNode: true,
+      autoAnchor: true
+    };
+    
+    // 直接设置canvas选项
+    if (meta2d.canvas) {
+      meta2d.canvas.dragItems = true;
+      meta2d.canvas.hotkeyEnable = true;
+      console.log('已设置canvas.dragItems=true');
+    }
+    
+    // 尝试设置选项
+    meta2d.setOptions({
+      grid: true,
+      gridColor: '#282828',
+      gridSize: 20,
+      rule: true,
+      ruleColor: '#888',
+      // 关键配置：确保元素可以移动
+      locked: 0,
+      dragOn: true,
+      dragToPanning: false,     
+      disableTranslate: false,  
+      disableScale: false,      
+      disableRotate: false,     
+      movableLine: true,        
+      movableNode: true,
+      hoverColor: '#00e5ff',
+      anchorSize: 5,
+      anchorColor: '#00a0ff',
+      autoAnchor: true,
+      hoverCursor: 'move',
+      activeColor: '#00a0ff',
+    });
+    
+    console.log('重新设置Meta2d选项完成');
+    
+    // 强制重新渲染
+    meta2d.render();
+  } catch (error) {
+    console.error('设置Meta2d选项失败:', error);
+  }
+};
+
+// 画布事件处理 - 确保选择状态正确
+const onElementSelected = (nodes: any[], lines: any[]) => {
+  if (nodes && nodes.length === 1) {
+    console.log('选中节点:', nodes[0]);
+    selectedNode.value = { ...nodes[0] };
+    selectedLine.value = null;
+    
+    // 确保元素可移动属性
+    meta2d.setPenProps(nodes[0], {
+      locked: 0,
+      movable: true,
+      selectable: true
+    });
+    meta2d.render();
+  } else if (lines && lines.length === 1) {
+    console.log('选中线条:', lines[0]);
+    const line = lines[0];
+    // 确保选中的线条有明显的样式
+    if (line.strokeStyle === 'transparent') {
+      line.strokeStyle = '#00a0ff';
+    }
+    
+    selectedLine.value = { ...lines[0] };
+    selectedNode.value = null;
+    
+    // 确保线条可移动
+    meta2d.setPenProps(line, {
+      locked: 0,
+      movable: true,
+      selectable: true
+    });
+    meta2d.render();
+  } else if (nodes.length === 0 && lines.length === 0) {
+    // 只在没有选中任何元素时清除
+    selectedNode.value = null;
+    selectedLine.value = null;
+  }
+};
+
+// 处理选中元素变为非活动状态
+const onElementInactive = () => {
+  console.log('元素变为非活动状态');
+  
+  meta2d.getAllLines().forEach((line: any) => {
+    if (!line.strokeStyle || line.strokeStyle === 'transparent') {
+      line.strokeStyle = '#00a0ff';
     }
   });
+  meta2d.render();
+};
+
+// 处理点击事件
+const onClick = (e: { pen: any }) => {
+  console.log('点击事件:', e.pen ? '元素' : '空白区域');
+  
+  // 如果点击了元素，确保其可移动
+  if (e.pen) {
+    meta2d.setPenProps(e.pen, {
+      locked: 0,
+      movable: true,
+      selectable: true
+    });
+  }
+  
+  meta2d.getAllLines().forEach((line: any) => {
+    if (!line.strokeStyle || line.strokeStyle === 'transparent') {
+      line.strokeStyle = '#00a0ff';
+    }
+  });
+  meta2d.render();
 };
 
 // 加载设备列表
@@ -730,57 +1151,89 @@ const fetchDevices = async () => {
   }
 };
 
-// 元素拖拽开始
-const onDragStart = (e, comp) => {
-  console.log('拖拽开始，组件:', comp.name, '类型:', comp.type);
+// 元素拖拽开始 - 简化拖拽处理
+const onDragStart = (e: DragEvent, comp: any) => {
+  if (!e.dataTransfer) return;
+  
+  e.stopPropagation();
   
   // 设置拖拽效果
   e.dataTransfer.effectAllowed = 'copy';
   
   try {
-    // 使用官方的数据格式：Meta2d
-    const compData = comp.data || {
-      name: comp.name,
-      width: comp.width,
-      height: comp.height
+    // 确保图形可移动
+    const enhancedData = {
+      ...(comp.data || comp),
+      locked: 0,          // 0=不锁定，关键设置
+      movable: true,      // 可移动，关键设置
+      selectable: true,   // 可选择，关键设置
+      resizable: true     // 可调整大小
     };
     
-    const compStr = JSON.stringify(compData);
-    console.log('序列化组件数据:', compStr);
-    e.dataTransfer.setData('Meta2d', compStr);
+    e.dataTransfer.setData('Meta2d', JSON.stringify(enhancedData));
+    
+    document.body.classList.add('dragging');
   } catch (error) {
-    console.error('设置拖拽数据失败:', error);
+    console.error('拖拽失败:', error);
   }
 };
 
 // 组件点击添加
-const onComponentClick = (comp) => {
+const onComponentClick = (comp: any) => {
   console.log('组件点击:', comp.name);
   
-  // 支持单击添加图元
-  if (comp.data && meta2d) {
-    meta2d.canvas.addCaches = [comp.data];
-  }
-};
-
-// 画布事件处理
-const onElementSelected = (nodes, lines) => {
-  console.log('元素选中事件:', nodes, lines);
-  
-  if (nodes && nodes.length === 1) {
-    selectedNode.value = { ...nodes[0] };
-    selectedLine.value = null;
-  } else if (lines && lines.length === 1) {
-    selectedLine.value = { ...lines[0] };
-    selectedNode.value = null;
-  } else {
-    selectedNode.value = null;
-    selectedLine.value = null;
+  // 支持单击添加图元，与官方示例保持一致
+  if (meta2d) {
+    try {
+      const data = comp.data || comp;
+      
+      // 确保元素可选中和移动
+      const enhancedData = {
+        ...data,
+        locked: 0,
+        movable: true,
+        selectable: true,
+        resizable: true
+      };
+      
+      // 设置位置到画布中心
+      const x = meta2d.store.data.width / 2 - (data.width || 80) / 2;
+      const y = meta2d.store.data.height / 2 - (data.height || 80) / 2;
+      
+      // 添加到画布
+      const node = meta2d.addPen({
+        ...enhancedData,
+        x: x,
+        y: y
+      });
+      
+      console.log('组件添加结果:', node);
+      
+      // 确保元素属性正确
+      if (node) {
+        // 立即设置元素可移动属性
+        meta2d.setPenProps(node, {
+          locked: 0,
+          movable: true,
+          selectable: true
+        });
+        
+        // 立即选中新添加的元素
+        setTimeout(() => {
+          meta2d.active([node]);
+          meta2d.render();
+        }, 50);
+      }
+      
+      meta2d.render();
+    } catch (error) {
+      console.error('添加组件失败:', error);
+    }
   }
 };
 
 // 缩放事件处理
-const onScale = ({ scale: newScale }) => {
+const onScale = ({ scale: newScale }: { scale: number }) => {
   scale.value = newScale;
 };
 
@@ -817,11 +1270,17 @@ const updateNodeData = () => {
 const updateLine = () => {
   if (!selectedLine.value || !meta2d) return;
 
+  const lineColor = selectedLine.value.lineColor || selectedLine.value.strokeStyle || '#00a0ff';
+  const lineWidth = Math.max(selectedLine.value.lineWidth || 0, 2);
+
   meta2d.updateLine({
     id: selectedLine.value.id,
     name: selectedLine.value.name,
-    lineColor: selectedLine.value.lineColor,
-    lineWidth: selectedLine.value.lineWidth
+    lineColor: lineColor,
+    strokeStyle: lineColor, // 确保strokeStyle也被设置
+    lineWidth: lineWidth,
+    fromArrowColor: lineColor,
+    toArrowColor: lineColor
   });
   
   meta2d.render();
@@ -830,15 +1289,31 @@ const updateLine = () => {
 // 删除节点
 const deleteNode = () => {
   if (!selectedNode.value || !meta2d) return;
-  meta2d.delete([selectedNode.value.id]);
-  selectedNode.value = null;
+  
+  try {
+    console.log('正在删除节点:', selectedNode.value.id);
+    meta2d.delete([selectedNode.value.id]);
+    selectedNode.value = null;
+    meta2d.render(); // 确保渲染更新
+    console.log('节点删除成功');
+  } catch (error) {
+    console.error('删除节点失败:', error);
+  }
 };
 
 // 删除线条
 const deleteLine = () => {
   if (!selectedLine.value || !meta2d) return;
-  meta2d.delete([selectedLine.value.id]);
-  selectedLine.value = null;
+  
+  try {
+    console.log('正在删除线条:', selectedLine.value.id);
+    meta2d.delete([selectedLine.value.id]);
+    selectedLine.value = null;
+    meta2d.render(); // 确保渲染更新
+    console.log('线条删除成功');
+  } catch (error) {
+    console.error('删除线条失败:', error);
+  }
 };
 
 // 工具栏事件处理
@@ -852,7 +1327,21 @@ const onNew = () => {
 
 const onSave = () => {
   if (!meta2d) return;
+  
+  // 获取完整的编辑器数据
   const data = meta2d.data();
+  
+  // 确保连线数据被保存并设置为可见样式
+  const linesData = meta2d.getAllLines();
+  if (linesData && linesData.length > 0) {
+    console.log(`保存${linesData.length}条连线`);
+    // 确保所有线条的样式都是可见的
+    linesData.forEach((line: any) => {
+      line.strokeStyle = line.strokeStyle || '#00a0ff';
+      line.lineWidth = line.lineWidth || 2;
+    });
+  }
+  
   localStorage.setItem('meta2d-wastewater', JSON.stringify(data));
   alert('保存成功！');
 };
@@ -865,6 +1354,13 @@ const onOpen = () => {
 const onPen = () => {
   console.log('激活线条工具');
   activeTool.value = 'pen';
+  // 设置默认线条样式
+  meta2d.setOptions({
+    lineColor: '#00a0ff',
+    lineWidth: 2,
+    fromArrowColor: '#00a0ff',
+    toArrowColor: '#00a0ff',
+  });
   meta2d.drawLine();
 };
 
@@ -958,8 +1454,14 @@ onUnmounted(() => {
   if (meta2d) {
     meta2d.off('active', onElementSelected);
     meta2d.off('scale', onScale);
+    meta2d.off('inactive', onElementInactive);
+    meta2d.off('click', onClick);
+    meta2d.off('move');
     meta2d.destroy();
   }
+  
+  // 删除键盘事件监听
+  document.removeEventListener('keydown', handleKeyDown);
   
   // 移除鼠标移动监听
   if (container.value) {
@@ -971,6 +1473,59 @@ onUnmounted(() => {
     clearInterval(dataUpdateTimer);
   }
 });
+
+// 添加键盘删除事件处理函数
+const handleKeyDown = (e: KeyboardEvent) => {
+  if ((e.key === 'Delete' || e.key === 'Backspace') && 
+      meta2d && meta2d.activeLayer?.pens.length) {
+    console.log('正在通过键盘删除元素');
+    meta2d.delete();
+    meta2d.render();
+  }
+};
+
+// 在onMounted中添加事件监听
+document.addEventListener('keydown', handleKeyDown);
+
+// 在onUnmounted中移除事件监听
+document.removeEventListener('keydown', handleKeyDown);
+
+// 调试函数：尝试修复所有元素为可移动状态
+const fixAllElementsMovable = () => {
+  if (!meta2d) return;
+  
+  try {
+    // 获取所有元素
+    const allPens = meta2d.getAllPens();
+    console.log('当前画布上的元素数量:', allPens.length);
+    
+    // 设置所有元素可移动
+    allPens.forEach(pen => {
+      meta2d.setPenProps(pen, {
+        locked: 0,
+        movable: true,
+        selectable: true,
+        disableTranslate: false,
+        disableScale: false,
+        disableRotate: false
+      });
+    });
+    
+    // 重新渲染
+    meta2d.render();
+    console.log('已将所有元素设置为可移动状态');
+    
+    // 尝试选中第一个元素以便调试
+    if (allPens.length > 0) {
+      meta2d.active([allPens[0]]);
+      console.log('已选中第一个元素:', allPens[0]);
+    }
+  } catch (error) {
+    console.error('修复元素可移动状态失败:', error);
+  }
+};
+
+// 在onMounted最后调用一次，或者创建UI按钮调用此函数
 </script>
 
 <style scoped>
@@ -985,6 +1540,39 @@ onUnmounted(() => {
   border: 1px solid rgba(0, 140, 255, 0.3);
   position: relative;
   overflow: hidden;
+}
+
+/* 拖拽状态样式 */
+.meta2d-container.drag-target {
+  cursor: copy;
+}
+
+.meta2d-container.drag-over {
+  border: 2px dashed rgba(0, 140, 255, 0.7);
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(0, 120, 255, 0.2) 0%, transparent 80%),
+    linear-gradient(rgba(0, 120, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 120, 255, 0.1) 1px, transparent 1px);
+  box-shadow: inset 0 0 140px rgba(0, 80, 255, 0.25);
+}
+
+.component {
+  transition: transform 0.1s ease, background-color 0.1s ease, box-shadow 0.2s ease;
+}
+
+.component:hover {
+  background-color: rgba(0, 140, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+body.dragging .component {
+  cursor: grabbing;
+}
+
+body.dragging .component:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 /* 添加底部水流动画效果 */

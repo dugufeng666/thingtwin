@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景矩形 -->
+  <rect x="20" y="40" width="60" height="20" fill="#00182e" stroke="#00a0ff" stroke-width="2" rx="2" />
+  
+  <!-- 主体阀门形状 -->
+  <path d="M20,50 L40,50 L40,30 L60,70 L60,50 L80,50" 
+        fill="none" 
+        stroke="#00c0ff" 
+        stroke-width="5" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" />
+  
+  <!-- 阀门把手 -->
+  <rect x="45" y="10" width="10" height="30" fill="#004080" stroke="#00c0ff" stroke-width="1.5" rx="2" />
+  
+  <!-- 阀门连接线 -->
+  <line x1="10" y1="50" x2="20" y2="50" stroke="#00a0ff" stroke-width="3" />
+  <line x1="80" y1="50" x2="90" y2="50" stroke="#00a0ff" stroke-width="3" />
+  
+  <!-- 发光效果 -->
+  <path d="M20,50 L40,50 L40,30 L60,70 L60,50 L80,50" 
+        fill="none" 
+        stroke="rgba(0,192,255,0.3)" 
+        stroke-width="8" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        filter="blur(4px)" />
+</svg> 

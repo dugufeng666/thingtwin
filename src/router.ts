@@ -18,8 +18,11 @@ const routes = [
   }
 ];
 
+// 根据环境设置 base 路径
+const base = import.meta.env.MODE === 'production' ? '/thingtwin/' : '/';
+
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(base),
   routes,
 });
 

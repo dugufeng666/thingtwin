@@ -28,13 +28,20 @@ export default defineConfig(({ command, mode }) => ({
         'https://at.alicdn.com/t/c/font_4042197_vr5c62twlzh.js'
       ],
       output: {
-        manualChunks: {
-          'meta2d': ['@meta2d/core'],
-          'vue-vendor': ['vue', 'vue-router']
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name.split('.');
+          let extType = info[info.length - 1];
+          if (/\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/i.test(assetInfo.name)) {
+            extType = 'media';
+          } else if (/\.(png|jpe?g|gif|svg|ico|webp)(\?.*)?$/i.test(assetInfo.name)) {
+            extType = 'imgs';
+          } else if (/\.(woff2?|eot|ttf|otf)(\?.*)?$/i.test(assetInfo.name)) {
+            extType = 'fonts';
+          }
+          return `${extType}/[name]-[hash][extname]`;
         },
-        entryFileNames: 'assets/[name].[hash].js',
-        chunkFileNames: 'assets/[name].[hash].js',
-        assetFileNames: 'assets/[name].[hash].[ext]'
+        chunkFileNames: 'js/[name]-[hash].js',
+        entryFileNames: 'js/[name]-[hash].js'
       }
     },
     chunkSizeWarningLimit: 1000
@@ -42,5 +49,8 @@ export default defineConfig(({ command, mode }) => ({
   optimizeDeps: {
     include: ['vue', 'vue-router', '@meta2d/core']
   },
-  publicDir: 'public'
+  server: {
+    host: true,
+    port: 3000
+  }
 }));

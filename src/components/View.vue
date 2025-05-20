@@ -4,31 +4,14 @@
 
 <script lang="ts" setup>
 import { onMounted, onUnmounted } from 'vue';
-import {
-  Meta2d,
-  Pen,
-  register,
-  registerAnchors,
-  registerCanvasDraw,
-} from '@meta2d/core';
-import { flowPens, flowAnchors } from '@meta2d/flow-diagram';
-import {
-  activityDiagram,
-  activityDiagramByCtx,
-} from '@meta2d/activity-diagram';
-import { classPens } from '@meta2d/class-diagram';
-import { sequencePens, sequencePensbyCtx } from '@meta2d/sequence-diagram';
-import { register as registerEcharts } from '@meta2d/chart-diagram';
-import { formPens } from '@meta2d/form-diagram';
-import { chartsPens } from '@meta2d/le5le-charts';
-import { ftaPens, ftaPensbyCtx, ftaAnchors } from '@meta2d/fta-diagram';
+import { Meta2d, Pen } from '@meta2d/core';
 import { registerGraphics } from '@/components/Editor/registerDeviceIcons';
-
 import { useSelection } from '@/services/selections';
+import { preloadImage } from '@/config';
 
 const { select } = useSelection();
 
-const meta2dOptions: any = {
+const meta2dOptions = {
   rule: true,
   ruleColor: 'rgba(255, 255, 255, 0.2)',
   grid: true,
@@ -48,48 +31,49 @@ const meta2dOptions: any = {
   },
 };
 
-onMounted(() => {
+onMounted(async () => {
+  console.log('View component mounted');
+  
   // 创建实例
-  new Meta2d('meta2d', meta2dOptions);
+  window.meta2d = new Meta2d('meta2d', meta2dOptions);
 
-  // 注册设备图标
-  registerGraphics();
+  try {
+    // 注册设备图标和图形库
+    registerGraphics();
 
-  // 按需注册图形库
-  // 以下为自带基础图形库
-  register(flowPens());
-  registerAnchors(flowAnchors());
-  register(activityDiagram());
-  registerCanvasDraw(activityDiagramByCtx());
-  register(classPens());
-  register(sequencePens());
-  registerCanvasDraw(sequencePensbyCtx());
-  registerEcharts();
-  registerCanvasDraw(formPens());
-  registerCanvasDraw(chartsPens());
-  register(ftaPens());
-  registerCanvasDraw(ftaPensbyCtx());
-  registerAnchors(ftaAnchors());
+    // 预加载所有设备图标
+    const iconPaths = [
+      '/devices/valve.svg',
+      '/devices/flowmeter.svg',
+      '/devices/separator.svg',
+      '/devices/pump.svg',
+      '/devices/tank.svg',
+      '/devices/tank2.svg',
+      '/devices/gauge.svg',
+      '/devices/filter.svg',
+      '/devices/pump2.svg',
+      '/devices/pool.svg',
+      '/devices/drain.svg',
+      '/devices/sludge.svg'
+    ].map(path => import.meta.env.PROD ? `/thingtwin${path}` : path);
 
-  // 注册其他自定义图形库
-  // ...
+    await Promise.all(iconPaths.map(preloadImage));
+    console.log('All device icons loaded');
 
-  // 读取本地存储
-  let data: any = localStorage.getItem('meta2d');
-  if (data) {
-    data = JSON.parse(data);
-
-    // 判断是否为运行查看，是-设置为预览模式
-    if (location.pathname === '/preview') {
-      data.locked = 1;
-    } else {
-      data.locked = 0;
+    // 读取本地存储
+    const savedData = localStorage.getItem('meta2d');
+    if (savedData) {
+      const data = JSON.parse(savedData);
+      data.locked = location.pathname === '/preview' ? 1 : 0;
+      meta2d.open(data);
     }
-    meta2d.open(data);
-  }
 
-  meta2d.on('active', active);
-  meta2d.on('inactive', inactive);
+    // 添加事件监听
+    meta2d.on('active', active);
+    meta2d.on('inactive', inactive);
+  } catch (error) {
+    console.error('Error during initialization:', error);
+  }
 });
 
 const active = (pens?: Pen[]) => {
@@ -101,13 +85,18 @@ const inactive = () => {
 };
 
 onUnmounted(() => {
-  meta2d.destroy();
+  if (meta2d) {
+    meta2d.off('active', active);
+    meta2d.off('inactive', inactive);
+    meta2d.destroy();
+  }
 });
 </script>
 
 <style lang="postcss" scoped>
 #meta2d {
   height: calc(100vh - 80px);
+  width: 100%;
   z-index: 1;
   background-color: #001529;
   box-shadow: inset 0 0 50px rgba(64, 196, 255, 0.1);

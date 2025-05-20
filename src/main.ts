@@ -5,7 +5,8 @@ import App from './App.vue';
 
 import router from './router';
 import TDesign from 'tdesign-vue-next';
-import { registerGraphics } from './components/Editor/registerDeviceIcons';
+// 引入 TDesign 样式
+import 'tdesign-vue-next/es/style/index.css';
 
 const app = createApp(App);
 
@@ -18,9 +19,5 @@ app.config.errorHandler = (err, vm, info) => {
 
 // 加载基础服务
 app.use(router).use(TDesign);
-// end
-
-// Register all graphics
-registerGraphics();
 
 app.mount('#app');

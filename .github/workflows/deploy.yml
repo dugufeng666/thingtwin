@@ -5,6 +5,10 @@ on:
     branches:
       - main # 或者是你的默认分支名称
 
+# 设置 GITHUB_TOKEN 的权限
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -16,6 +20,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16.x'
+          cache: 'npm'
 
       - name: Install Dependencies
         run: npm install
@@ -27,4 +32,5 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: dist # 构建输出目录
-          branch: gh-pages # 部署分支 
+          branch: gh-pages # 部署分支
+          token: ${{ secrets.GITHUB_TOKEN }} 

@@ -24,11 +24,17 @@ export default defineConfig({
     minify: 'esbuild',
     sourcemap: true,
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html')
+      },
       output: {
         manualChunks: {
           'meta2d': ['@meta2d/core'],
           'vue-vendor': ['vue', 'vue-router'],
-        }
+        },
+        entryFileNames: 'assets/[name].[hash].js',
+        chunkFileNames: 'assets/[name].[hash].js',
+        assetFileNames: 'assets/[name].[hash].[ext]'
       }
     }
   }

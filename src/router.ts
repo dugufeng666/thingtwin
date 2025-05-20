@@ -24,7 +24,7 @@ const router = createRouter({
 });
 
 // 添加全局导航守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach((_to, _from, next) => {
   // 确保页面滚动到顶部
   window.scrollTo(0, 0);
   next();

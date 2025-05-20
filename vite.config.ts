@@ -21,6 +21,7 @@ export default defineConfig(({ command, mode }) => ({
     minify: 'esbuild',
     sourcemap: false,
     rollupOptions: {
+      input: path.resolve(__dirname, 'index.html'),
       external: [
         'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
         'https://assets.le5lecdn.com/2d/canvas2svg.js',

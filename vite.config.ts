@@ -20,6 +20,11 @@ export default defineConfig(({ command }) => ({
     minify: 'esbuild',
     sourcemap: false,
     rollupOptions: {
+      external: [
+        'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
+        'https://assets.le5lecdn.com/2d/canvas2svg.js',
+        'https://at.alicdn.com/t/c/font_4042197_vr5c62twlzh.js'
+      ],
       input: {
         main: path.resolve(__dirname, 'index.html')
       },

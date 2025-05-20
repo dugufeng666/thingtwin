@@ -24,11 +24,15 @@ export default defineConfig(({ command }) => ({
       input: {
         main: path.resolve(__dirname, 'index.html')
       },
+      external: [
+        'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
+        'https://assets.le5lecdn.com/2d/canvas2svg.js',
+        'https://at.alicdn.com/t/c/font_4042197_vr5c62twlzh.js'
+      ],
       output: {
         manualChunks: {
           'meta2d': ['@meta2d/core'],
-          'vue-vendor': ['vue', 'vue-router'],
-          'external-libs': ['marked', 'canvas2svg']
+          'vue-vendor': ['vue', 'vue-router']
         },
         entryFileNames: 'assets/[name].[hash].js',
         chunkFileNames: 'assets/[name].[hash].js',

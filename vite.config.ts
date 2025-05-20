@@ -13,6 +13,7 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+    extensions: ['.js', '.ts', '.vue', '.json']
   },
   server: {
     port: 3000, // 你可以修改这个端口号
@@ -20,14 +21,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    // 生产环境移除 console
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-    },
+    minify: 'esbuild',
     sourcemap: true,
     rollupOptions: {
       output: {

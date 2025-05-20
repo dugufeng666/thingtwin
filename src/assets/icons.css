@@ -1,0 +1,127 @@
+@font-face {
+  font-family: "iconfont";
+  src: url('/shapes/iconfont.woff2') format('woff2'),
+       url('/shapes/iconfont.woff') format('woff'),
+       url('/shapes/iconfont.ttf') format('truetype');
+}
+
+.l-icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+}
+
+/* Basic Shapes */
+.l-rect {
+  -webkit-mask: url('/shapes/rect.svg') no-repeat 50% 50%;
+  mask: url('/shapes/rect.svg') no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: currentColor;
+}
+
+.l-rectangle {
+  -webkit-mask: url('/shapes/rectangle.svg') no-repeat 50% 50%;
+  mask: url('/shapes/rectangle.svg') no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: currentColor;
+}
+
+.l-circle {
+  -webkit-mask: url('/shapes/circle.svg') no-repeat 50% 50%;
+  mask: url('/shapes/circle.svg') no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: currentColor;
+}
+
+.l-triangle {
+  -webkit-mask: url('/shapes/triangle.svg') no-repeat 50% 50%;
+  mask: url('/shapes/triangle.svg') no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: currentColor;
+}
+
+.l-diamond {
+  -webkit-mask: url('/shapes/diamond.svg') no-repeat 50% 50%;
+  mask: url('/shapes/diamond.svg') no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: currentColor;
+}
+
+.l-pentagon {
+  -webkit-mask: url('/shapes/pentagon.svg') no-repeat 50% 50%;
+  mask: url('/shapes/pentagon.svg') no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: currentColor;
+}
+
+.l-hexagon {
+  -webkit-mask: url('/shapes/hexagon.svg') no-repeat 50% 50%;
+  mask: url('/shapes/hexagon.svg') no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: currentColor;
+}
+
+.l-pentagram {
+  -webkit-mask: url('/shapes/pentagram.svg') no-repeat 50% 50%;
+  mask: url('/shapes/pentagram.svg') no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: currentColor;
+}
+
+.l-arrow-left {
+  -webkit-mask: url('/shapes/arrow-left.svg') no-repeat 50% 50%;
+  mask: url('/shapes/arrow-left.svg') no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: currentColor;
+}
+
+.l-arrow-right {
+  -webkit-mask: url('/shapes/arrow-right.svg') no-repeat 50% 50%;
+  mask: url('/shapes/arrow-right.svg') no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: currentColor;
+}
+
+.l-twoway-arrow {
+  -webkit-mask: url('/shapes/twoway-arrow.svg') no-repeat 50% 50%;
+  mask: url('/shapes/twoway-arrow.svg') no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: currentColor;
+}
+
+.l-cloud {
+  -webkit-mask: url('/shapes/cloud.svg') no-repeat 50% 50%;
+  mask: url('/shapes/cloud.svg') no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: currentColor;
+}
+
+.l-msg {
+  -webkit-mask: url('/shapes/msg.svg') no-repeat 50% 50%;
+  mask: url('/shapes/msg.svg') no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: currentColor;
+}
+
+.l-file {
+  -webkit-mask: url('/shapes/file.svg') no-repeat 50% 50%;
+  mask: url('/shapes/file.svg') no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: currentColor;
+} 

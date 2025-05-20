@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="80" height="40" viewBox="0 0 80 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10 10h60v20H10z" fill="#1a365d"/>
+  <path d="M10 10h60l-8 -5H18z" fill="#2a4a7f"/>
+  <path d="M70 10v20l-8 5V15z" fill="#1e3a5f"/>
+  <circle cx="40" cy="20" r="8" fill="#40C4FF"/>
+  <path d="M40 16v8" stroke="#fff" stroke-width="2"/>
+  <path d="M36 20l8 0" stroke="#fff" stroke-width="2"/>
+  <path d="M20 15l40 10" stroke="#40C4FF"/>
+</svg> 

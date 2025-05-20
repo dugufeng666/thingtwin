@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- 储罐主体 -->
+  <path d="M25,25 L75,25 L75,85 C75,90 25,90 25,85 Z" 
+        fill="url(#tank-gradient)" 
+        stroke="#00a0ff" 
+        stroke-width="2" />
+  
+  <!-- 顶部 -->
+  <ellipse cx="50" cy="25" rx="25" ry="8" fill="#004080" stroke="#00a0ff" stroke-width="2" />
+  
+  <!-- 液位线 -->
+  <path d="M25,45 L75,45" stroke="#00e0ff" stroke-width="1" stroke-dasharray="4 2" />
+  <path d="M25,65 L75,65" stroke="#00e0ff" stroke-width="1" stroke-dasharray="4 2" />
+  
+  <!-- 液体 -->
+  <path d="M25,65 L75,65 L75,85 C75,90 25,90 25,85 Z" 
+        fill="url(#liquid-gradient)" 
+        stroke="none" />
+  
+  <!-- 阀门 -->
+  <rect x="45" y="85" width="10" height="8" fill="#00182e" stroke="#00a0ff" stroke-width="1.5" />
+  
+  <!-- 连接口 -->
+  <rect x="20" y="55" width="5" height="10" fill="#00182e" stroke="#00a0ff" stroke-width="1.5" />
+  <rect x="75" y="55" width="5" height="10" fill="#00182e" stroke="#00a0ff" stroke-width="1.5" />
+  
+  <!-- 液位指示 -->
+  <rect x="80" y="30" width="4" height="55" fill="#001a30" stroke="#00a0ff" stroke-width="1" />
+  <rect x="80" y="65" width="4" height="20" fill="#00c0ff" stroke="#00e0ff" stroke-width="1" />
+  
+  <!-- 发光效果 -->
+  <path d="M25,65 L75,65 L75,85 C75,90 25,90 25,85 Z" 
+        fill="none" 
+        stroke="rgba(0,224,255,0.2)" 
+        stroke-width="4"
+        filter="blur(3px)" />
+  
+  <!-- 渐变定义 -->
+  <defs>
+    <linearGradient id="tank-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#002040" />
+      <stop offset="50%" stop-color="#00305a" />
+      <stop offset="100%" stop-color="#002040" />
+    </linearGradient>
+    
+    <linearGradient id="liquid-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0070c0" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#0050a0" stop-opacity="0.7" />
+    </linearGradient>
+  </defs>
+</svg> 

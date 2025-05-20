@@ -126,17 +126,15 @@ onUnmounted(() => {
 }
 
 :deep(.meta2d-pen) {
-  stroke: #fff !important;
   fill: rgba(255, 255, 255, 0.1) !important;
+  stroke-width: 2 !important;
 }
 
 :deep(.meta2d-pen:hover) {
-  stroke: #40C4FF !important;
   filter: drop-shadow(0 0 4px rgba(64, 196, 255, 0.5));
 }
 
 :deep(.meta2d-pen.active) {
-  stroke: #40C4FF !important;
   filter: drop-shadow(0 0 8px rgba(64, 196, 255, 0.5));
 }
 </style>

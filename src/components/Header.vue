@@ -1,9 +1,15 @@
 <template>
   <div class="app-header">
-    <a class="logo" href="https://le5le.com" target="_blank">
-      
-      <span>数字孪生编辑器</span>
-    </a>
+    
+    <t-dropdown
+      :minColumnWidth="200"
+      :maxHeight="560"
+      overlayClassName="header-dropdown"
+    >
+    <span>数字孪生编辑器</span>
+  </t-dropdown>
+    
+    
     <t-dropdown
       :minColumnWidth="200"
       :maxHeight="560"
@@ -98,6 +104,7 @@
         <use xlink:href="#l-redo"></use>
       </svg>
     </t-tooltip>
+    
     <t-tooltip content="直线">
       <span
         :draggable="true"
@@ -242,13 +249,6 @@ import FileSaver from 'file-saver';
 import { MessagePlugin } from 'tdesign-vue-next';
 
 const router = useRouter();
-
-const assets = reactive({
-  home: 'https://le5le.com',
-  helps: [
-    {
-      name: '产品介绍',
-          }],});
 
 const isDrawLine = ref<boolean>(false);
 
@@ -701,7 +701,7 @@ const onView = () => {
   background-color: #001529 !important;
   border: 1px solid rgba(0, 176, 255, 0.2) !important;
   color: #00B0FF !important;
-}
+    }
 
 .flex-grow {
   flex-grow: 1;

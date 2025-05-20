@@ -12,7 +12,7 @@ export default defineConfig(({ command }) => ({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-    },
+    }
   },
   build: {
     outDir: 'dist',
@@ -25,19 +25,19 @@ export default defineConfig(({ command }) => ({
         'https://assets.le5lecdn.com/2d/canvas2svg.js',
         'https://at.alicdn.com/t/c/font_4042197_vr5c62twlzh.js'
       ],
-      input: {
-        main: path.resolve(__dirname, 'index.html')
-      },
       output: {
         manualChunks: {
           'meta2d': ['@meta2d/core'],
           'vue-vendor': ['vue', 'vue-router'],
         },
-        entryFileNames: `assets/[name].[hash].js`,
-        chunkFileNames: `assets/[name].[hash].js`,
-        assetFileNames: `assets/[name].[hash].[ext]`
+        entryFileNames: 'assets/[name].[hash].js',
+        chunkFileNames: 'assets/[name].[hash].js',
+        assetFileNames: 'assets/[name].[hash].[ext]'
       }
     }
+  },
+  optimizeDeps: {
+    include: ['vue', 'vue-router', '@meta2d/core']
   },
   publicDir: 'public'
 }));

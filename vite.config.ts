@@ -17,4 +17,15 @@ export default defineConfig({
   server: {
     port: 3000, // 你可以修改这个端口号
   },
+  build: {
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'meta2d': ['@meta2d/core'],
+          'vue-vendor': ['vue', 'vue-router'],
+        }
+      }
+    }
+  }
 });

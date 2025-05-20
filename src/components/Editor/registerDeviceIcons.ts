@@ -1,4 +1,5 @@
 import { register, Pen } from '@meta2d/core';
+import { getAssetPath } from '../../config';
 
 // 扩展 Pen 类型以包含自定义属性
 interface CustomPen extends Pen {
@@ -50,7 +51,7 @@ function registerDeviceIcons() {
       text: '',
       width: 40,
       height: 40,
-      image: '/devices/valve.svg'
+      image: getAssetPath('/devices/valve.svg')
     }
   } as any);
 
@@ -63,137 +64,137 @@ function registerDeviceIcons() {
       text: '',
       width: 60,
       height: 60,
-      image: '/devices/flowmeter.svg'
+      image: getAssetPath('/devices/flowmeter.svg')
     }
   } as any);
 
   // 分集水器
   register({
     name: 'l-device-separator',
-    icon: '/devices/separator.svg',
+    icon: getAssetPath('/devices/separator.svg'),
     data: {
       name: 'image',
       text: '',
       width: 100,
       height: 40,
-      image: '/devices/separator.svg'
+      image: getAssetPath('/devices/separator.svg')
     }
   } as any);
 
   // 加药泵
   register({
     name: 'l-device-pump',
-    icon: '/devices/pump.svg',
+    icon: getAssetPath('/devices/pump.svg'),
     data: {
       name: 'image',
       text: '',
       width: 40,
       height: 80,
-      image: '/devices/pump.svg'
+      image: getAssetPath('/devices/pump.svg')
     }
   } as any);
 
   // 加药箱
   register({
     name: 'l-device-tank',
-    icon: '/devices/tank.svg',
+    icon: getAssetPath('/devices/tank.svg'),
     data: {
       name: 'image',
       text: '',
       width: 60,
       height: 100,
-      image: '/devices/tank.svg'
+      image: getAssetPath('/devices/tank.svg')
     }
   } as any);
 
   // 加药箱2
   register({
     name: 'l-device-tank2',
-    icon: '/devices/tank2.svg',
+    icon: getAssetPath('/devices/tank2.svg'),
     data: {
       name: 'image',
       text: '',
       width: 60,
       height: 100,
-      image: '/devices/tank2.svg'
+      image: getAssetPath('/devices/tank2.svg')
     }
   } as any);
 
   // 压力表
   register({
     name: 'l-device-gauge',
-    icon: '/devices/gauge.svg',
+    icon: getAssetPath('/devices/gauge.svg'),
     data: {
       name: 'image',
       text: '',
       width: 60,
       height: 60,
-      image: '/devices/gauge.svg'
+      image: getAssetPath('/devices/gauge.svg')
     }
   } as any);
 
   // 压滤机
   register({
     name: 'l-device-filter',
-    icon: '/devices/filter.svg',
+    icon: getAssetPath('/devices/filter.svg'),
     data: {
       name: 'image',
       text: '',
       width: 120,
       height: 40,
-      image: '/devices/filter.svg'
+      image: getAssetPath('/devices/filter.svg')
     }
   } as any);
 
   // 回流泵
   register({
     name: 'l-device-pump2',
-    icon: '/devices/pump2.svg',
+    icon: getAssetPath('/devices/pump2.svg'),
     data: {
       name: 'image',
       text: '',
       width: 80,
       height: 40,
-      image: '/devices/pump2.svg'
+      image: getAssetPath('/devices/pump2.svg')
     }
   } as any);
 
   // 废水池
   register({
     name: 'l-device-pool',
-    icon: '/devices/pool.svg',
+    icon: getAssetPath('/devices/pool.svg'),
     data: {
       name: 'image',
       text: '',
       width: 120,
       height: 120,
-      image: '/devices/pool.svg'
+      image: getAssetPath('/devices/pool.svg')
     }
   } as any);
 
   // 排水泵
   register({
     name: 'l-device-drain',
-    icon: '/devices/drain.svg',
+    icon: getAssetPath('/devices/drain.svg'),
     data: {
       name: 'image',
       text: '',
       width: 80,
       height: 40,
-      image: '/devices/drain.svg'
+      image: getAssetPath('/devices/drain.svg')
     }
   } as any);
 
   // 污泥收集
   register({
     name: 'l-device-sludge',
-    icon: '/devices/sludge.svg',
+    icon: getAssetPath('/devices/sludge.svg'),
     data: {
       name: 'image',
       text: '',
       width: 120,
       height: 120,
-      image: '/devices/sludge.svg'
+      image: getAssetPath('/devices/sludge.svg')
     }
   } as any);
 

@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  base: '/thingtwin/',
+export default defineConfig(({ command }) => ({
+  base: command === 'serve' ? '/' : '/thingtwin/',
   plugins: [vue()],
   resolve: {
     alias: {
@@ -32,4 +32,4 @@ export default defineConfig({
     }
   },
   publicDir: 'public'
-});
+}));

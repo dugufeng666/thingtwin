@@ -21,21 +21,21 @@ export default defineConfig(({ command }) => ({
     minify: 'esbuild',
     sourcemap: false,
     rollupOptions: {
-      external: [
-        'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
-        'https://assets.le5lecdn.com/2d/canvas2svg.js',
-        'https://at.alicdn.com/t/c/font_4042197_vr5c62twlzh.js'
-      ],
+      input: {
+        main: path.resolve(__dirname, 'index.html')
+      },
       output: {
         manualChunks: {
           'meta2d': ['@meta2d/core'],
           'vue-vendor': ['vue', 'vue-router'],
+          'external-libs': ['marked', 'canvas2svg']
         },
         entryFileNames: 'assets/[name].[hash].js',
         chunkFileNames: 'assets/[name].[hash].js',
         assetFileNames: 'assets/[name].[hash].[ext]'
       }
-    }
+    },
+    chunkSizeWarningLimit: 1000
   },
   optimizeDeps: {
     include: ['vue', 'vue-router', '@meta2d/core']

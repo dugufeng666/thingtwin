@@ -13,17 +13,12 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
-    extensions: ['.js', '.ts', '.vue', '.json']
-  },
-  server: {
-    port: 3000, // 你可以修改这个端口号
   },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     minify: 'esbuild',
-    sourcemap: true,
-    copyPublicDir: true,
+    sourcemap: false,
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'index.html')
@@ -32,11 +27,9 @@ export default defineConfig({
         manualChunks: {
           'meta2d': ['@meta2d/core'],
           'vue-vendor': ['vue', 'vue-router'],
-        },
-        entryFileNames: `assets/[name].[hash].js`,
-        chunkFileNames: `assets/[name].[hash].js`,
-        assetFileNames: `assets/[name].[hash].[ext]`
+        }
       }
     }
-  }
+  },
+  publicDir: 'public'
 });

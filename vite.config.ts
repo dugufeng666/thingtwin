@@ -18,6 +18,16 @@ export default defineConfig({
     port: 3000, // 你可以修改这个端口号
   },
   build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    // 生产环境移除 console
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
     sourcemap: true,
     rollupOptions: {
       output: {

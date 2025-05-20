@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main # 或者是你的默认分支名称
+      - main # 或者 master，取决于你的默认分支名
 
 # 设置 GITHUB_TOKEN 的权限
 permissions:
@@ -19,8 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16.x'
-          cache: 'npm'
+          node-version: '16'
 
       - name: Install Dependencies
         run: npm install
@@ -31,6 +30,7 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: dist # 构建输出目录
-          branch: gh-pages # 部署分支
+          branch: gh-pages
+          folder: dist
+          clean: true
           token: ${{ secrets.GITHUB_TOKEN }} 

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command }) => ({
+export default defineConfig(({ command, mode }) => ({
   base: command === 'serve' ? '/' : '/thingtwin/',
   plugins: [vue()],
   resolve: {
@@ -21,9 +21,6 @@ export default defineConfig(({ command }) => ({
     minify: 'esbuild',
     sourcemap: false,
     rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'index.html')
-      },
       external: [
         'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
         'https://assets.le5lecdn.com/2d/canvas2svg.js',

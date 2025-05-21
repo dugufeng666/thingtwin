@@ -1,0 +1,1 @@
+import{V as e}from"./View-b81d6009.js";import{d as _,e as a,g as s,c as t,_ as o}from"./index-3af5a202.js";const c={class:"app-page"},r=_({__name:"Preview",setup(n){return(p,i)=>(t(),a("div",c,[s(e)]))}});const m=o(r,[["__scopeId","data-v-7ffae808"]]);export{m as default};
